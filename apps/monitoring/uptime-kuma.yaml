@@ -12,7 +12,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Yasuke2000/Homelab.git  # TODO
+    repoURL: https://github.com/Yasuke2000/Homelab.git
     targetRevision: HEAD
     path: apps/monitoring/uptime-kuma-manifests
   destination:
