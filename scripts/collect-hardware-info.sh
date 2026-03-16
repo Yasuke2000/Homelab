@@ -5,7 +5,7 @@
 # Run this script on each node BEFORE deploying NixOS.
 # Boot from a NixOS minimal ISO or Ubuntu live USB, then run:
 #
-#   curl -sL https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/homelab/main/scripts/collect-hardware-info.sh | bash
+#   curl -sL https://raw.githubusercontent.com/Yasuke2000/Homelab/main/scripts/collect-hardware-info.sh | bash
 #   # or if you have the repo cloned:
 #   bash scripts/collect-hardware-info.sh
 #

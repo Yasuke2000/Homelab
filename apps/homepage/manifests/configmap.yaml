@@ -39,7 +39,7 @@ data:
     - Developer:
         - GitHub:
             - icon: github.png
-              href: https://github.com/YOUR_GITHUB_USERNAME/homelab  # TODO
+              href: https://github.com/Yasuke2000/Homelab  # TODO
         - ArgoCD:
             - icon: argocd.png
               href: https://argocd.yourdomain.com  # TODO

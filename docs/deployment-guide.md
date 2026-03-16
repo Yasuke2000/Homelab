@@ -29,7 +29,7 @@ git push origin main
 ```
 
 ### 0.2 Vul je GitHub repo URL in
-Vervang `YOUR_GITHUB_USERNAME` in dit bestand:
+Vervang `Yasuke2000` in dit bestand:
 - `apps/app-of-apps.yaml`
 - Alle `apps/*/application.yaml` bestanden
 

@@ -24,7 +24,7 @@ spec:
 
   source:
     # TODO: replace with your actual repo URL
-    repoURL: https://github.com/YOUR_GITHUB_USERNAME/homelab.git
+    repoURL: https://github.com/Yasuke2000/Homelab.git
     targetRevision: HEAD
     path: apps
     directory:
