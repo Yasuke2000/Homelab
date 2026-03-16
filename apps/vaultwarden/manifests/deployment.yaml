@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: vaultwarden
-          image: vaultwarden/server:latest  # TODO: pin to specific version
+          image: vaultwarden/server:1.32.7
           ports:
             - containerPort: 80
               name: http

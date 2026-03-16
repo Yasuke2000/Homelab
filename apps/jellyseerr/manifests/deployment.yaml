@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: jellyseerr
-          image: fallenbagel/jellyseerr:latest  # TODO: pin version
+          image: fallenbagel/jellyseerr:2.5.2
           ports:
             - containerPort: 5055
               name: http

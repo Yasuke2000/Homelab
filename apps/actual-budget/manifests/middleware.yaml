@@ -1,0 +1,17 @@
+---
+# ---------------------------------------------------------------------------
+# Traefik Middleware — IP allowlist for Actual Budget
+# Restricts access to the home VLAN (10.0.20.0/24) only.
+# Referenced by the Ingress annotation:
+#   traefik.ingress.kubernetes.io/router.middlewares: actual-budget-ipallow@kubernetescrd
+# ---------------------------------------------------------------------------
+
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ipallow
+  namespace: actual-budget
+spec:
+  ipAllowList:
+    sourceRange:
+      - 10.0.20.0/24

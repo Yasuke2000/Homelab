@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: romm
-          image: rommapp/romm:latest  # TODO: pin version
+          image: rommapp/romm:3.7.3
           ports:
             - containerPort: 8080
               name: http
@@ -103,7 +103,7 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: mariadb:11  # TODO: pin version
+          image: mariadb:11.4
           env:
             - name: MYSQL_DATABASE
               value: romm

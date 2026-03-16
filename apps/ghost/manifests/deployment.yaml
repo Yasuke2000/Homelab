@@ -31,7 +31,7 @@ spec:
           command: ['sh', '-c', 'until nc -z ghost-mysql 3306; do echo waiting for mysql; sleep 2; done']
       containers:
         - name: ghost
-          image: ghost:5-alpine  # TODO: pin to specific version
+          image: ghost:5.87.2-alpine
           ports:
             - containerPort: 2368
               name: http
@@ -95,7 +95,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8.0  # TODO: pin version
+          image: mysql:8.0.40
           env:
             - name: MYSQL_DATABASE
               value: ghost
