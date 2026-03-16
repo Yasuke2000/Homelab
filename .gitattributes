@@ -1,0 +1,28 @@
+# Enforce LF line endings for all text files
+* text=auto eol=lf
+
+# NixOS files MUST have LF - CRLF will break nix evaluation
+*.nix text eol=lf
+
+# YAML files
+*.yaml text eol=lf
+*.yml  text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# JSON / TOML / lock files
+*.json text eol=lf
+*.toml text eol=lf
+flake.lock text eol=lf
+
+# sops secrets
+secrets.yaml text eol=lf
+
+# Markdown / docs
+*.md text eol=lf
+
+# Binary files - no line ending conversion
+*.png binary
+*.jpg binary
+*.ico binary

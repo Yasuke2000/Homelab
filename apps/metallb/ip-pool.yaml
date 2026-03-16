@@ -1,0 +1,29 @@
+---
+# ---------------------------------------------------------------------------
+# MetalLB IP address pool — CRD based (v0.14+ required)
+#
+# TODO: adjust the IP range to match your VLAN 20 allocation
+# Currently reserves 10.0.20.100–10.0.20.200 for LoadBalancer services
+# ---------------------------------------------------------------------------
+
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: homelab-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    # TODO: verify this range doesn't conflict with DHCP or static assignments
+    - 10.0.20.100-10.0.20.200
+
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: homelab-l2
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+    - homelab-pool
+  # Advertise from all nodes (default)
+  # nodeSelectors: []

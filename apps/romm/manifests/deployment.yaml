@@ -1,0 +1,226 @@
+---
+# ---------------------------------------------------------------------------
+# RomM — ROM manager with EmulatorJS integration
+# ROMs stored on TrueNAS NFS mount
+# TODO: create NFS share on TrueNAS: /mnt/datapool/roms
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: romm
+  namespace: romm
+  labels:
+    app: romm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: romm
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: romm
+    spec:
+      containers:
+        - name: romm
+          image: rommapp/romm:latest  # TODO: pin version
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: DB_HOST
+              value: romm-mariadb
+            - name: DB_NAME
+              value: romm
+            - name: DB_USER
+              value: romm
+            - name: DB_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: dbPassword  # TODO: add to secrets/secrets.yaml
+            - name: ROMM_AUTH_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: secretKey   # TODO: add to secrets/secrets.yaml
+            # IGDB API for cover art (optional but recommended)
+            # TODO: get API keys from https://api-docs.igdb.com/
+            # - name: IGDB_CLIENT_ID
+            #   value: ""
+            # - name: IGDB_CLIENT_SECRET
+            #   value: ""
+          volumeMounts:
+            - name: roms
+              mountPath: /romm/library
+            - name: assets
+              mountPath: /romm/assets
+            - name: config
+              mountPath: /romm/config
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+      volumes:
+        - name: roms
+          nfs:
+            # TODO: set your TrueNAS NFS path for ROMs
+            server: 10.0.20.14
+            path: /mnt/datapool/roms
+        - name: assets
+          persistentVolumeClaim:
+            claimName: romm-assets
+        - name: config
+          persistentVolumeClaim:
+            claimName: romm-config
+
+---
+# MariaDB for RomM
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: romm-mariadb
+  namespace: romm
+  labels:
+    app: romm-mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: romm-mariadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: romm-mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:11  # TODO: pin version
+          env:
+            - name: MYSQL_DATABASE
+              value: romm
+            - name: MYSQL_USER
+              value: romm
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: dbPassword
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: "yes"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: romm-mariadb-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: romm-assets
+  namespace: romm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: romm-config
+  namespace: romm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: romm-mariadb-data
+  namespace: romm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: romm
+  namespace: romm
+spec:
+  selector:
+    app: romm
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: romm-mariadb
+  namespace: romm
+spec:
+  selector:
+    app: romm-mariadb
+  ports:
+    - port: 3306
+  clusterIP: None
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: romm
+  namespace: romm
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: romm-tls
+      hosts:
+        - romm.yourdomain.com  # TODO
+  rules:
+    - host: romm.yourdomain.com  # TODO
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: romm
+                port:
+                  number: 8080

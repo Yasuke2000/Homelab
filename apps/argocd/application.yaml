@@ -1,0 +1,67 @@
+---
+# ---------------------------------------------------------------------------
+# ArgoCD — manages itself after initial bootstrap
+#
+# Initial install (manual, run once):
+#   kubectl create namespace argocd
+#   kubectl apply --server-side --force-conflicts \
+#     -n argocd \
+#     -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+#
+# After bootstrap, ArgoCD manages its own upgrades via this Application.
+#
+# TODO: verify chart version — https://artifacthub.io/packages/helm/argo/argo-cd
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"  # install before all apps
+spec:
+  project: default
+
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-cd
+    # TODO: pin to latest ArgoCD v3 chart version
+    # Check: helm search repo argo/argo-cd --versions | head -5
+    targetRevision: "7.8.0"
+    helm:
+      valuesObject:
+        global:
+          # TODO: set your ArgoCD domain
+          domain: argocd.yourdomain.com   # TODO
+
+        server:
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - argocd.yourdomain.com     # TODO
+            tls:
+              - secretName: argocd-tls
+                hosts:
+                  - argocd.yourdomain.com # TODO
+
+        configs:
+          params:
+            # Disable TLS on the server side (Traefik handles TLS termination)
+            server.insecure: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true

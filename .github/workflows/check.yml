@@ -1,0 +1,137 @@
+---
+# ---------------------------------------------------------------------------
+# GitHub Actions — CI for NixOS homelab repo
+#
+# Runs on every push and PR:
+#   1. nix flake check — validates all NixOS configurations
+#   2. yamllint — validates all YAML manifests
+#   3. kubeconform — validates K8s manifests against API schemas
+#   4. sops check — ensures no unencrypted secrets are committed
+#
+# Uses Cachix to speed up Nix builds (optional, TODO to configure)
+# ---------------------------------------------------------------------------
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  nix-flake-check:
+    name: Nix flake check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-25.05
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      # TODO: configure Cachix for faster CI builds
+      # - name: Use Cachix cache
+      #   uses: cachix/cachix-action@v15
+      #   with:
+      #     name: YOUR_CACHIX_CACHE_NAME
+      #     authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Check flake
+        run: nix flake check --no-build --show-trace
+
+      - name: Show flake metadata
+        run: nix flake metadata
+
+  yaml-lint:
+    name: YAML lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          config_data: |
+            extends: default
+            rules:
+              line-length:
+                max: 120
+              truthy:
+                allowed-values: ['true', 'false', 'yes', 'no']
+              comments:
+                min-spaces-from-content: 1
+
+  kubeconform:
+    name: Kubernetes manifest validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz \
+            | tar -xz -C /usr/local/bin kubeconform
+
+      - name: Validate K8s manifests
+        run: |
+          find apps infrastructure -name '*.yaml' -o -name '*.yml' | \
+          grep -v 'application.yaml' | \
+          xargs kubeconform \
+            -strict \
+            -ignore-missing-schemas \
+            -kubernetes-version 1.33.0 \
+            -summary
+
+  sops-check:
+    name: No plaintext secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check secrets are encrypted
+        run: |
+          # Fail if secrets.yaml exists but contains no sops metadata
+          if [ -f secrets/secrets.yaml ]; then
+            if ! grep -q "^sops:" secrets/secrets.yaml && \
+               ! grep -q "ENC\[AES256_GCM" secrets/secrets.yaml; then
+              echo "ERROR: secrets/secrets.yaml appears to be unencrypted!"
+              echo "Run: sops secrets/secrets.yaml"
+              exit 1
+            fi
+          fi
+          echo "Secrets check passed"
+
+      - name: Scan for accidental secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+  line-endings:
+    name: Check LF line endings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for CRLF in Nix files
+        run: |
+          crlf_files=$(find . -name '*.nix' -exec file {} \; | grep CRLF | awk -F: '{print $1}')
+          if [ -n "$crlf_files" ]; then
+            echo "ERROR: CRLF line endings found in .nix files:"
+            echo "$crlf_files"
+            echo "Fix with: git add --renormalize ."
+            exit 1
+          fi
+          echo "Line ending check passed"

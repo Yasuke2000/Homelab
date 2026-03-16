@@ -1,0 +1,44 @@
+---
+# ---------------------------------------------------------------------------
+# ArgoCD App of Apps — root Application
+#
+# This single Application points ArgoCD at the apps/ directory.
+# ArgoCD discovers all Application manifests inside and manages them.
+#
+# APPLY ONCE (manual bootstrap after ArgoCD is installed):
+#   kubectl apply -f apps/app-of-apps.yaml
+#
+# TODO: replace repoURL with your actual GitHub repo URL
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homelab-apps
+  namespace: argocd
+  annotations:
+    # Wave -10 so this is always the first thing synced
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  project: default
+
+  source:
+    # TODO: replace with your actual repo URL
+    repoURL: https://github.com/YOUR_GITHUB_USERNAME/homelab.git
+    targetRevision: HEAD
+    path: apps
+    directory:
+      recurse: true          # discover Application yamls in subdirs
+      exclude: "app-of-apps.yaml"  # don't recurse into self
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true   # required for ArgoCD v3

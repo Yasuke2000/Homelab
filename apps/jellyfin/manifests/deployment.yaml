@@ -1,0 +1,125 @@
+---
+# ---------------------------------------------------------------------------
+# Jellyfin — media server
+#
+# Media stored on NFS mount from TrueNAS SCALE (10.0.20.14)
+# TODO: create NFS shares on TrueNAS:
+#   /mnt/datapool/media/movies
+#   /mnt/datapool/media/tv
+#   /mnt/datapool/media/music
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: media
+  labels:
+    app: jellyfin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jellyfin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      containers:
+        - name: jellyfin
+          image: jellyfin/jellyfin:latest  # TODO: pin version
+          ports:
+            - containerPort: 8096
+              name: http
+          env:
+            - name: JELLYFIN_PublishedServerUrl
+              # TODO: set your domain
+              value: "https://jellyfin.yourdomain.com"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: cache
+              mountPath: /cache
+            - name: media
+              mountPath: /media
+              readOnly: true
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 500m
+            limits:
+              memory: 4Gi
+              cpu: 4000m
+          # TODO: enable GPU transcoding if your HP EliteDesk has Intel iGPU
+          # Add to resources.limits: gpu.intel.com/i915: "1"
+          # And add device plugin: intel/intel-device-plugins-k8s
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: jellyfin-config
+        - name: cache
+          emptyDir: {}
+        - name: media
+          nfs:
+            # TODO: set your TrueNAS NFS path
+            server: 10.0.20.14
+            path: /mnt/datapool/media
+            readOnly: true
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: media
+spec:
+  selector:
+    app: jellyfin
+  ports:
+    - port: 8096
+      targetPort: 8096
+      name: http
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jellyfin
+  namespace: media
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: jellyfin-tls
+      hosts:
+        - jellyfin.yourdomain.com  # TODO
+  rules:
+    - host: jellyfin.yourdomain.com  # TODO
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin
+                port:
+                  number: 8096

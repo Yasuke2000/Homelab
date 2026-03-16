@@ -1,0 +1,78 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate config for NixOS homelab — auto-updates Helm chart versions and container images",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":separatePatchReleases",
+    "helpers:pinGitHubActionDigests"
+  ],
+
+  "timezone": "Europe/Brussels",
+  "schedule": ["after 2am and before 6am on monday"],
+
+  "labels": ["renovate", "dependencies"],
+  "reviewers": [],
+  "assignees": [],
+
+  "packageRules": [
+    {
+      "description": "Helm chart updates",
+      "matchDatasources": ["helm"],
+      "groupName": "helm-charts",
+      "automerge": false,
+      "labels": ["renovate", "helm"]
+    },
+    {
+      "description": "Container image patch updates — automerge",
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "labels": ["renovate", "docker", "patch"]
+    },
+    {
+      "description": "Container image minor/major — no automerge",
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor", "major"],
+      "automerge": false,
+      "labels": ["renovate", "docker"]
+    },
+    {
+      "description": "NixOS flake inputs — weekly",
+      "matchManagers": ["nix"],
+      "groupName": "nix-flake-inputs",
+      "schedule": ["after 2am and before 6am on monday"],
+      "automerge": false,
+      "labels": ["renovate", "nix"]
+    },
+    {
+      "description": "GitHub Actions — automerge patch",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "automerge": true,
+      "labels": ["renovate", "github-actions"]
+    },
+    {
+      "description": "Critical infrastructure — no automerge, require approval",
+      "matchPackageNames": [
+        "argo-cd",
+        "longhorn",
+        "metallb",
+        "traefik",
+        "cert-manager",
+        "kube-prometheus-stack"
+      ],
+      "automerge": false,
+      "labels": ["renovate", "infrastructure", "needs-review"],
+      "reviewers": []
+    }
+  ],
+
+  "helm-values": {
+    "fileMatch": ["apps/.*\\.yaml$"]
+  },
+
+  "kubernetes": {
+    "fileMatch": ["apps/.*/manifests/.*\\.yaml$", "infrastructure/.*\\.yaml$"]
+  }
+}

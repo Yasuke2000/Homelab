@@ -1,0 +1,88 @@
+---
+# ---------------------------------------------------------------------------
+# Longhorn v1.11 — distributed block storage
+#
+# CRITICAL: Requires Kyverno PATH fix for NixOS.
+# infrastructure/kyverno-longhorn-fix.yaml MUST be applied first.
+# sync-wave "-1" ensures Kyverno policy exists before Longhorn pods start.
+#
+# NFS backup target: TrueNAS SCALE at 10.0.20.14 / datapool/longhorn-backup
+# TODO: create the NFS share on TrueNAS before enabling backup
+#
+# TODO: verify chart version — https://artifacthub.io/packages/helm/longhorn/longhorn
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # Kyverno policy must exist first
+spec:
+  project: default
+
+  source:
+    repoURL: https://charts.longhorn.io
+    chart: longhorn
+    targetRevision: "1.11.0"
+    helm:
+      valuesObject:
+        defaultSettings:
+          # Replicas across 3 nodes
+          defaultReplicaCount: 3
+
+          # NFS backup target on TrueNAS SCALE
+          # TODO: create share on TrueNAS: Shares → NFS → /mnt/datapool/longhorn-backup
+          # TODO: set to your TrueNAS NFS path after creating the share
+          backupTarget: "nfs://10.0.20.14:/mnt/datapool/longhorn-backup"
+
+          # Where replicas store data on each node
+          defaultDataPath: /var/lib/longhorn
+
+          # Don't schedule replicas on same node
+          replicaSoftAntiAffinity: false
+
+          # Auto-balance replicas when a new node is added
+          replicaAutoBalance: best-effort
+
+        longhornUI:
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - # TODO: set your Longhorn dashboard domain
+                host: longhorn.yourdomain.com
+                paths:
+                  - /
+            tls:
+              - secretName: longhorn-tls
+                hosts:
+                  - longhorn.yourdomain.com  # TODO
+
+        # Tolerate control-plane taint (all nodes are control-plane + worker)
+        longhornManager:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+        longhornDriver:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true

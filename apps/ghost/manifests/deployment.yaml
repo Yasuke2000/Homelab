@@ -1,0 +1,206 @@
+---
+# ---------------------------------------------------------------------------
+# Ghost — website/portfolio/blog
+# Uses MySQL for production (SQLite not recommended for Ghost)
+# TODO: replace all domain references
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ghost
+  namespace: ghost
+  labels:
+    app: ghost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ghost
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ghost
+    spec:
+      initContainers:
+        # Wait for MySQL to be ready
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z ghost-mysql 3306; do echo waiting for mysql; sleep 2; done']
+      containers:
+        - name: ghost
+          image: ghost:5-alpine  # TODO: pin to specific version
+          ports:
+            - containerPort: 2368
+              name: http
+          env:
+            - name: url
+              # TODO: set your Ghost domain
+              value: "https://yourdomain.com"
+            - name: database__client
+              value: mysql
+            - name: database__connection__host
+              value: ghost-mysql
+            - name: database__connection__database
+              value: ghost
+            - name: database__connection__user
+              value: ghost
+            - name: database__connection__password
+              valueFrom:
+                secretKeyRef:
+                  name: ghost-secrets
+                  key: dbPassword
+            - name: mail__transport
+              value: SMTP
+            # TODO: configure SMTP
+            # - name: mail__options__host
+            #   value: smtp.yourdomain.com
+          volumeMounts:
+            - name: content
+              mountPath: /var/lib/ghost/content
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+      volumes:
+        - name: content
+          persistentVolumeClaim:
+            claimName: ghost-content
+
+---
+# Ghost MySQL database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ghost-mysql
+  namespace: ghost
+  labels:
+    app: ghost-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ghost-mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ghost-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0  # TODO: pin version
+          env:
+            - name: MYSQL_DATABASE
+              value: ghost
+            - name: MYSQL_USER
+              value: ghost
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ghost-secrets
+                  key: dbPassword
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: "yes"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ghost-mysql-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ghost-content
+  namespace: ghost
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ghost-mysql-data
+  namespace: ghost
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ghost
+  namespace: ghost
+spec:
+  selector:
+    app: ghost
+  ports:
+    - port: 2368
+      targetPort: 2368
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ghost-mysql
+  namespace: ghost
+spec:
+  selector:
+    app: ghost-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  clusterIP: None   # headless service — only internal access
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ghost
+  namespace: ghost
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: ghost-tls
+      hosts:
+        - yourdomain.com  # TODO
+  rules:
+    - host: yourdomain.com  # TODO
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ghost
+                port:
+                  number: 2368

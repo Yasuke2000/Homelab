@@ -1,0 +1,118 @@
+---
+# ---------------------------------------------------------------------------
+# SilverBullet — self-hosted markdown wiki / second brain
+# https://silverbullet.md
+#
+# Single binary, no database needed — data stored as plain .md files on a PVC.
+# TODO: set your domain
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: silverbullet
+  namespace: silverbullet
+  labels:
+    app: silverbullet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: silverbullet
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: silverbullet
+    spec:
+      containers:
+        - name: silverbullet
+          image: ghcr.io/silverbulletmd/silverbullet:latest  # TODO: pin version
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: SB_USER
+              # TODO: set your username (format: "user:password" or use auth file)
+              # Better: use SB_AUTH env var pointing to a secret
+              value: "admin"
+            - name: SB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: silverbullet-secrets
+                  key: password  # TODO: add silverbullet.password to secrets/secrets.yaml
+          volumeMounts:
+            - name: space
+              mountPath: /space
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+      volumes:
+        - name: space
+          persistentVolumeClaim:
+            claimName: silverbullet-space
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: silverbullet-space
+  namespace: silverbullet
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: silverbullet
+  namespace: silverbullet
+spec:
+  selector:
+    app: silverbullet
+  ports:
+    - port: 3000
+      targetPort: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: silverbullet
+  namespace: silverbullet
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: silverbullet-tls
+      hosts:
+        - notes.yourdomain.com  # TODO
+  rules:
+    - host: notes.yourdomain.com  # TODO
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: silverbullet
+                port:
+                  number: 3000

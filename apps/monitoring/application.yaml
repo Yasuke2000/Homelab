@@ -1,0 +1,102 @@
+---
+# ---------------------------------------------------------------------------
+# kube-prometheus-stack — Prometheus + Grafana + Alertmanager
+#
+# Includes: prometheus-operator, node-exporter, kube-state-metrics, grafana
+# TODO: verify chart version — https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    # TODO: pin to latest stable version
+    targetRevision: "70.4.2"
+    helm:
+      valuesObject:
+        # Grafana
+        grafana:
+          enabled: true
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            annotations:
+              traefik.ingress.kubernetes.io/router.entrypoints: websecure
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - grafana.yourdomain.com   # TODO
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana.yourdomain.com  # TODO
+
+          # TODO: change admin password
+          adminPassword: "changeme"   # TODO — use sops secret
+
+          persistence:
+            enabled: true
+            storageClassName: longhorn
+            size: 5Gi
+
+        # Prometheus
+        prometheus:
+          prometheusSpec:
+            retention: 30d
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: longhorn
+                  accessModes: [ReadWriteOnce]
+                  resources:
+                    requests:
+                      storage: 20Gi
+
+            # Scrape all ServiceMonitors in the cluster
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+
+        # Alertmanager — configure after setup
+        alertmanager:
+          alertmanagerSpec:
+            storage:
+              volumeClaimTemplate:
+                spec:
+                  storageClassName: longhorn
+                  accessModes: [ReadWriteOnce]
+                  resources:
+                    requests:
+                      storage: 2Gi
+
+        # node-exporter on all nodes (including control-plane)
+        prometheus-node-exporter:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+
+        # kube-state-metrics
+        kube-state-metrics:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+      - Replace=true  # for CRD upgrades

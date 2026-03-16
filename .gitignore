@@ -1,0 +1,55 @@
+# ---------------------------------------------------------------------------
+# NixOS homelab — .gitignore
+# ---------------------------------------------------------------------------
+
+# Never commit unencrypted secrets
+# secrets.yaml MUST be encrypted with sops before committing
+# This is a safety net — real protection is sops encryption
+secrets/*.yaml.plaintext
+secrets/*.yaml.bak
+secrets/*.age
+
+# sops temp files
+*.sops.tmp
+.sops-*
+
+# age private keys — NEVER commit these
+*.agekey
+key.txt
+
+# Nix build results
+result
+result-*
+
+# nix-direnv
+.direnv/
+
+# Editor artifacts
+.vscode/settings.json
+*.swp
+*.swo
+*~
+.DS_Store
+
+# nixos-anywhere temp files
+*.iso
+*.img
+
+# Kubeconfig — contains cluster credentials
+kubeconfig
+*.kubeconfig
+kube.config
+
+# Helm chart downloads / chart cache
+charts/
+Chart.lock
+
+# Terraform (if added later)
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Local overrides
+*.local
+local.*

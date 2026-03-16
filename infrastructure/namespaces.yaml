@@ -1,0 +1,114 @@
+---
+# ---------------------------------------------------------------------------
+# Cluster namespaces — apply once after K3s is up, before ArgoCD bootstrap
+# kubectl apply -f infrastructure/namespaces.yaml
+# ---------------------------------------------------------------------------
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    app.kubernetes.io/managed-by: argocd
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metallb-system
+  labels:
+    pod-security.kubernetes.io/enforce: privileged  # MetalLB speaker needs privileged
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik
+  labels:
+    app.kubernetes.io/managed-by: argocd
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+  labels:
+    app.kubernetes.io/managed-by: argocd
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+  labels:
+    app.kubernetes.io/managed-by: argocd
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kyverno
+  labels:
+    app.kubernetes.io/managed-by: argocd
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vaultwarden
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: actual-budget
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: media
+  # Jellyfin + Jellyseerr share this namespace
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pelican
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ghost
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: silverbullet
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shelf
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: romm
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  # Prometheus + Grafana + Uptime Kuma
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homepage

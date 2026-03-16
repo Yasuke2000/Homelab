@@ -1,0 +1,61 @@
+---
+# ---------------------------------------------------------------------------
+# Kyverno — policy engine
+#
+# MUST be installed BEFORE Longhorn (sync-wave -5).
+# The Longhorn NixOS PATH fix in infrastructure/kyverno-longhorn-fix.yaml
+# depends on Kyverno being ready first.
+#
+# TODO: verify chart version — https://artifacthub.io/packages/helm/kyverno/kyverno
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"  # before Longhorn fix policy
+spec:
+  project: default
+
+  source:
+    repoURL: https://kyverno.github.io/kyverno/
+    chart: kyverno
+    targetRevision: "3.4.0"  # TODO: pin to latest stable
+    helm:
+      valuesObject:
+        admissionController:
+          replicas: 3   # HA across all 3 nodes
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+        backgroundController:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+        cleanupController:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+        reportsController:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+      - Replace=true  # needed for CRD upgrades

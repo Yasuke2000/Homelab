@@ -1,0 +1,73 @@
+---
+# ---------------------------------------------------------------------------
+# Kyverno ClusterPolicy — Longhorn PATH fix for NixOS
+#
+# PROBLEM (gotcha #1):
+#   Longhorn engine/replica pods expect system binaries in /bin and /usr/bin.
+#   NixOS stores them in /run/current-system/sw/bin via the Nix store.
+#   Without this fix, Longhorn pods fail with:
+#     "exec: mount: executable file not found in $PATH"
+#
+# SOLUTION:
+#   This Kyverno mutation policy patches all Longhorn pods to:
+#     1. Add an initContainer that symlinks NixOS paths into /usr/local/bin
+#     2. Inject the NixOS binary path into the PATH environment variable
+#
+# APPLY ORDER: Kyverno must be running BEFORE Longhorn is installed.
+#   ArgoCD handles this via syncWave annotations:
+#     Kyverno (wave -5) → this policy (wave -4) → Longhorn (wave 0)
+#
+# Reference: https://github.com/longhorn/longhorn/issues/2166
+# ---------------------------------------------------------------------------
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: longhorn-nixos-path-fix
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+    policies.kyverno.io/title: Longhorn NixOS PATH fix
+    policies.kyverno.io/description: >
+      Patches Longhorn pods on NixOS to add the Nix store binary path,
+      fixing the missing executable errors in Longhorn engine containers.
+spec:
+  rules:
+    - name: patch-longhorn-path
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - longhorn-system
+      mutate:
+        patchStrategicMerge:
+          spec:
+            initContainers:
+              - name: nixos-path-setup
+                image: busybox:1.36
+                command:
+                  - sh
+                  - -c
+                  - |
+                    # Create symlinks for binaries Longhorn needs
+                    for bin in mount umount blkid findmnt lsblk; do
+                      src=$(which $bin 2>/dev/null || echo "")
+                      if [ -n "$src" ]; then
+                        ln -sf "$src" /usr/local/nixos-bin/$bin
+                      fi
+                    done
+                    echo "NixOS PATH fix applied"
+                volumeMounts:
+                  - name: nixos-bin
+                    mountPath: /usr/local/nixos-bin
+                securityContext:
+                  privileged: true
+            volumes:
+              - name: nixos-bin
+                emptyDir: {}
+            containers:
+              - name: "*"
+                env:
+                  - name: PATH
+                    value: "/usr/local/nixos-bin:/run/current-system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

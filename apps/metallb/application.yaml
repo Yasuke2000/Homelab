@@ -1,0 +1,50 @@
+---
+# ---------------------------------------------------------------------------
+# MetalLB v0.15.3 — L2 LoadBalancer
+#
+# CRITICAL: CRDs only — ConfigMap mode was removed in v0.14
+# See: docs/gotchas.md — MetalLB section
+#
+# IP pool: 10.0.20.100–10.0.20.200 (VLAN 20 range reserved for LB IPs)
+# TODO: adjust IP range to match your network allocation
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"  # before Traefik needs a LB IP
+spec:
+  project: default
+
+  source:
+    repoURL: https://metallb.github.io/metallb
+    chart: metallb
+    targetRevision: "0.15.3"
+    helm:
+      valuesObject:
+        # Speaker needs privileged to manipulate ARP/NDP
+        speaker:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+        controller:
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              effect: NoSchedule
+              operator: Exists
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true

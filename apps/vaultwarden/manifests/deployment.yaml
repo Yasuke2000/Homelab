@@ -1,0 +1,128 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+  labels:
+    app: vaultwarden
+spec:
+  replicas: 1    # single replica — SQLite db (stateful, no multi-replica support)
+  selector:
+    matchLabels:
+      app: vaultwarden
+  strategy:
+    type: Recreate   # needed for PVC with ReadWriteOnce
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+    spec:
+      containers:
+        - name: vaultwarden
+          image: vaultwarden/server:latest  # TODO: pin to specific version
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: DOMAIN
+              # TODO: set your Vaultwarden domain
+              value: "https://vault.yourdomain.com"
+            - name: SIGNUPS_ALLOWED
+              value: "false"    # disable public signups after initial setup
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-secrets
+                  key: adminToken
+            # TODO: configure SMTP for email notifications
+            # - name: SMTP_HOST
+            #   value: "smtp.yourdomain.com"
+            # - name: SMTP_PORT
+            #   value: "587"
+            # - name: SMTP_USERNAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: vaultwarden-secrets
+            #       key: smtpUsername
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: 200m
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /alive
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vaultwarden-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vaultwarden-data
+  namespace: vaultwarden
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  selector:
+    app: vaultwarden
+  ports:
+    - port: 80
+      targetPort: 80
+      name: http
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: vaultwarden-tls
+      hosts:
+        - vault.yourdomain.com   # TODO
+  rules:
+    - host: vault.yourdomain.com  # TODO
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vaultwarden
+                port:
+                  number: 80

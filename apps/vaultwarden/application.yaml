@@ -1,0 +1,35 @@
+---
+# ---------------------------------------------------------------------------
+# Vaultwarden — self-hosted Bitwarden-compatible password manager
+#
+# Image: vaultwarden/server (unofficial, but the de-facto standard)
+# Data stored on Longhorn PVC.
+#
+# TODO: replace all yourdomain.com references
+# TODO: configure SMTP for email notifications (2FA emails, invites)
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vaultwarden
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/YOUR_GITHUB_USERNAME/homelab.git  # TODO
+    targetRevision: HEAD
+    path: apps/vaultwarden/manifests
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vaultwarden
+
+  syncPolicy:
+    automated:
+      prune:    true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true

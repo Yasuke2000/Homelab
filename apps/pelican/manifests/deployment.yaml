@@ -1,0 +1,246 @@
+---
+# ---------------------------------------------------------------------------
+# Pelican Panel — game server management (Pterodactyl successor)
+# Requires: MySQL + Redis + Wings daemon on game server nodes
+#
+# NOTE: Wings daemon runs as a privileged DaemonSet (needs Docker/containerd access).
+# This manifest is for the Panel only.
+# TODO: deploy Wings separately on dedicated game server nodes.
+#
+# TODO: set domain, configure database credentials in secrets
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pelican-panel
+  namespace: pelican
+  labels:
+    app: pelican-panel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pelican-panel
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pelican-panel
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z pelican-mysql 3306; do sleep 2; done']
+        - name: wait-for-redis
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z pelican-redis 6379; do sleep 2; done']
+      containers:
+        - name: panel
+          image: ghcr.io/pelican-dev/panel:latest  # TODO: pin version
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: APP_URL
+              # TODO: set your Pelican domain
+              value: "https://games.yourdomain.com"
+            - name: DB_HOST
+              value: pelican-mysql
+            - name: DB_DATABASE
+              value: pelican
+            - name: DB_USERNAME
+              value: pelican
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pelican-secrets
+                  key: dbPassword  # TODO: add to secrets/secrets.yaml
+            - name: REDIS_HOST
+              value: pelican-redis
+            - name: APP_TIMEZONE
+              value: Europe/Brussels
+          volumeMounts:
+            - name: data
+              mountPath: /app/storage
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pelican-data
+
+---
+# MySQL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pelican-mysql
+  namespace: pelican
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pelican-mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: pelican-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_DATABASE
+              value: pelican
+            - name: MYSQL_USER
+              value: pelican
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pelican-secrets
+                  key: dbPassword
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: "yes"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: pelican-mysql-data
+
+---
+# Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pelican-redis
+  namespace: pelican
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pelican-redis
+  template:
+    metadata:
+      labels:
+        app: pelican-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pelican-data
+  namespace: pelican
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pelican-mysql-data
+  namespace: pelican
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pelican-panel
+  namespace: pelican
+spec:
+  selector:
+    app: pelican-panel
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pelican-mysql
+  namespace: pelican
+spec:
+  selector:
+    app: pelican-mysql
+  ports:
+    - port: 3306
+  clusterIP: None
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pelican-redis
+  namespace: pelican
+spec:
+  selector:
+    app: pelican-redis
+  ports:
+    - port: 6379
+  clusterIP: None
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pelican-panel
+  namespace: pelican
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: pelican-tls
+      hosts:
+        - games.yourdomain.com  # TODO
+  rules:
+    - host: games.yourdomain.com  # TODO
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pelican-panel
+                port:
+                  number: 80
