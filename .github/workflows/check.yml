@@ -58,15 +58,7 @@ jobs:
       - name: Run yamllint
         uses: ibiqlik/action-yamllint@v3
         with:
-          config_data: |
-            extends: default
-            rules:
-              line-length:
-                max: 120
-              truthy:
-                allowed-values: ['true', 'false', 'yes', 'no']
-              comments:
-                min-spaces-from-content: 1
+          config_file: .yamllint.yaml
 
   kubeconform:
     name: Kubernetes manifest validation
@@ -99,12 +91,16 @@ jobs:
 
       - name: Check secrets are encrypted
         run: |
-          # Fail if secrets.yaml exists but contains no sops metadata
+          # Fail if secrets.yaml exists, has real values, but is not sops-encrypted.
+          # A file with only REPLACE_WITH_ placeholders is a template — skip it.
           if [ -f secrets/secrets.yaml ]; then
-            if ! grep -q "^sops:" secrets/secrets.yaml && \
-               ! grep -q "ENC\[AES256_GCM" secrets/secrets.yaml; then
-              echo "ERROR: secrets/secrets.yaml appears to be unencrypted!"
-              echo "Run: sops secrets/secrets.yaml"
+            has_sops=$(grep -c "^sops:" secrets/secrets.yaml 2>/dev/null || true)
+            has_enc=$(grep -c "ENC\[AES256_GCM" secrets/secrets.yaml 2>/dev/null || true)
+            # If it looks like it has real values (not just REPLACE_WITH_ placeholders)
+            has_real=$(grep -Ev "(REPLACE_WITH_|^#|^---$|^\s*$)" secrets/secrets.yaml | grep -v "^sops:" | wc -l)
+            if [ "$has_sops" -eq 0 ] && [ "$has_enc" -eq 0 ] && [ "$has_real" -gt 0 ]; then
+              echo "ERROR: secrets/secrets.yaml appears to contain unencrypted values!"
+              echo "Run: sops secrets/secrets.yaml  to encrypt it first."
               exit 1
             fi
           fi

@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: actual-budget
-          image: actualbudget/actual-server:latest  # TODO: pin version
+          image: actualbudget/actual-server:25.1.0
           ports:
             - containerPort: 5006
               name: http
