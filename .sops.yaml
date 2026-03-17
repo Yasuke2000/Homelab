@@ -19,18 +19,21 @@
 #   5. Create/edit secrets: sops secrets/secrets.yaml
 # ---------------------------------------------------------------------------
 
+# Shared age recipients (workstation + all 3 nodes)
+# Replace these placeholders with your actual public keys.
+x-age-recipients: &age-recipients
+  - age1XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  # workstation
+  - age1YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY  # node1
+  - age1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ  # node2
+  - age1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  # node3
+
 creation_rules:
+  # Central NixOS secrets (k3s token, app passwords — source of truth)
   - path_regex: secrets/.*\.yaml$
     key_groups:
-      - age:
-          # TODO: your workstation age public key (for editing secrets)
-          - age1XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  # workstation
+      - age: *age-recipients
 
-          # TODO: node1 host age public key (so node1 can decrypt at boot)
-          - age1YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY  # node1
-
-          # TODO: node2 host age public key
-          - age1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ  # node2
-
-          # TODO: node3 host age public key
-          - age1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  # node3
+  # Kubernetes Secret manifests per app (encrypt before committing)
+  - path_regex: apps/.*/manifests/secret\.yaml$
+    key_groups:
+      - age: *age-recipients
