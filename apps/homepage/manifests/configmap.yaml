@@ -1,7 +1,7 @@
 ---
 # ---------------------------------------------------------------------------
 # Homepage config via ConfigMap — volledig GitOps-beheerd
-# TODO: vervang alle yourdomain.com door jouw domein
+# TODO: vervang alle daviddelporte.com door jouw domein
 # Docs: https://gethomepage.dev/configs/
 # ---------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@ metadata:
 data:
   settings.yaml: |
     title: Homelab
-    favicon: https://home.yourdomain.com/favicon.ico  # TODO
+    favicon: https://home.daviddelporte.com/favicon.ico  # TODO
     theme: dark
     color: slate
     headerStyle: boxed
@@ -42,28 +42,28 @@ data:
               href: https://github.com/Yasuke2000/Homelab  # TODO
         - ArgoCD:
             - icon: argocd.png
-              href: https://argocd.yourdomain.com  # TODO
+              href: https://argocd.daviddelporte.com  # TODO
         - Longhorn:
             - icon: longhorn.png
-              href: https://longhorn.yourdomain.com  # TODO
+              href: https://longhorn.daviddelporte.com  # TODO
 
   services.yaml: |
     - Infrastructure:
         - ArgoCD:
             icon: argocd.png
-            href: https://argocd.yourdomain.com     # TODO
+            href: https://argocd.daviddelporte.com     # TODO
             description: GitOps deployments
             namespace: argocd
             app: argocd-server
 
         - Traefik:
             icon: traefik.png
-            href: https://traefik.yourdomain.com    # TODO
+            href: https://traefik.daviddelporte.com    # TODO
             description: Ingress controller
 
         - Longhorn:
             icon: longhorn.png
-            href: https://longhorn.yourdomain.com   # TODO
+            href: https://longhorn.daviddelporte.com   # TODO
             description: Distributed storage
 
         - TrueNAS:
@@ -74,67 +74,67 @@ data:
     - Media:
         - Jellyfin:
             icon: jellyfin.png
-            href: https://jellyfin.yourdomain.com   # TODO
+            href: https://jellyfin.daviddelporte.com   # TODO
             description: Media server
             namespace: media
             app: jellyfin
 
         - Jellyseerr:
             icon: jellyseerr.png
-            href: https://requests.yourdomain.com   # TODO
+            href: https://requests.daviddelporte.com   # TODO
             description: Media requests
             namespace: media
             app: jellyseerr
 
         - RomM:
             icon: mdi-controller-classic
-            href: https://romm.yourdomain.com       # TODO
+            href: https://romm.daviddelporte.com       # TODO
             description: ROM manager
 
     - Apps:
         - Vaultwarden:
             icon: vaultwarden.png
-            href: https://vault.yourdomain.com      # TODO
+            href: https://vault.daviddelporte.com      # TODO
             description: Password manager
             namespace: vaultwarden
             app: vaultwarden
 
         - Actual Budget:
             icon: actual.png
-            href: https://budget.yourdomain.com     # TODO
+            href: https://budget.daviddelporte.com     # TODO
             description: Personal finance
 
         - SilverBullet:
             icon: mdi-notebook-edit
-            href: https://notes.yourdomain.com      # TODO
+            href: https://notes.daviddelporte.com      # TODO
             description: Notes & wiki
 
         - Shelf:
             icon: mdi-bookshelf
-            href: https://shelf.yourdomain.com      # TODO
+            href: https://shelf.daviddelporte.com      # TODO
             description: Library manager
 
         - Ghost:
             icon: ghost.png
-            href: https://yourdomain.com            # TODO
+            href: https://daviddelporte.com            # TODO
             description: Website / blog
 
         - Pelican:
             icon: mdi-gamepad-variant
-            href: https://games.yourdomain.com      # TODO
+            href: https://games.daviddelporte.com      # TODO
             description: Game servers
 
     - Monitoring:
         - Grafana:
             icon: grafana.png
-            href: https://grafana.yourdomain.com    # TODO
+            href: https://grafana.daviddelporte.com    # TODO
             description: Metrics & dashboards
             namespace: monitoring
             app: kube-prometheus-stack-grafana
 
         - Uptime Kuma:
             icon: uptime-kuma.png
-            href: https://status.yourdomain.com     # TODO
+            href: https://status.daviddelporte.com     # TODO
             description: Uptime monitoring
             namespace: monitoring
             app: uptime-kuma

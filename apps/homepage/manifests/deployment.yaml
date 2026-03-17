@@ -108,9 +108,9 @@ spec:
   tls:
     - secretName: homepage-tls
       hosts:
-        - home.yourdomain.com  # TODO
+        - home.daviddelporte.com  # TODO
   rules:
-    - host: home.yourdomain.com  # TODO
+    - host: home.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

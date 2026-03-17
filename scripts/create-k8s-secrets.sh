@@ -33,7 +33,7 @@ get() {
 }
 
 echo "Creating namespaces..."
-for ns in ghost pelican romm shelf silverbullet vaultwarden; do
+for ns in cert-manager ghost pelican romm shelf silverbullet vaultwarden; do
   kubectl create namespace "$ns" --dry-run=client -o yaml | kubectl apply -f -
 done
 
@@ -74,6 +74,12 @@ kubectl create secret generic vaultwarden-secrets \
   --from-literal=adminToken="$(get 'vaultwarden.adminToken')" \
   --dry-run=client -o yaml | kubectl apply -f -
 
+echo "Creating cloudflare-api-token (cert-manager DNS-01)..."
+kubectl create secret generic cloudflare-api-token \
+  --namespace cert-manager \
+  --from-literal=api-token="$(get 'cloudflare.apiToken')" \
+  --dry-run=client -o yaml | kubectl apply -f -
+
 echo ""
 echo "All Kubernetes secrets created successfully."
-echo "Verify with: kubectl get secrets -A | grep -E 'ghost|pelican|romm|shelf|silverbullet|vaultwarden'"
+echo "Verify with: kubectl get secrets -A | grep -E 'ghost|pelican|romm|shelf|silverbullet|vaultwarden|cloudflare'"

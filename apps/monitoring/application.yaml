@@ -31,11 +31,11 @@ spec:
               traefik.ingress.kubernetes.io/router.entrypoints: websecure
               cert-manager.io/cluster-issuer: letsencrypt-staging
             hosts:
-              - grafana.yourdomain.com   # TODO
+              - grafana.daviddelporte.com   # TODO
             tls:
               - secretName: grafana-tls
                 hosts:
-                  - grafana.yourdomain.com  # TODO
+                  - grafana.daviddelporte.com  # TODO
 
           # TODO: change admin password
           adminPassword: "changeme"   # TODO — use sops secret

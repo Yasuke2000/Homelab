@@ -104,9 +104,9 @@ spec:
   tls:
     - secretName: silverbullet-tls
       hosts:
-        - notes.yourdomain.com  # TODO
+        - notes.daviddelporte.com  # TODO
   rules:
-    - host: notes.yourdomain.com  # TODO
+    - host: notes.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

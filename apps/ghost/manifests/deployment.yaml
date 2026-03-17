@@ -38,7 +38,7 @@ spec:
           env:
             - name: url
               # TODO: set your Ghost domain
-              value: "https://yourdomain.com"
+              value: "https://daviddelporte.com"
             - name: database__client
               value: mysql
             - name: database__connection__host
@@ -56,7 +56,7 @@ spec:
               value: SMTP
             # TODO: configure SMTP
             # - name: mail__options__host
-            #   value: smtp.yourdomain.com
+            #   value: smtp.daviddelporte.com
           volumeMounts:
             - name: content
               mountPath: /var/lib/ghost/content
@@ -192,9 +192,9 @@ spec:
   tls:
     - secretName: ghost-tls
       hosts:
-        - yourdomain.com  # TODO
+        - daviddelporte.com  # TODO
   rules:
-    - host: yourdomain.com  # TODO
+    - host: daviddelporte.com  # TODO
       http:
         paths:
           - path: /

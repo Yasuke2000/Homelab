@@ -90,9 +90,9 @@ spec:
   tls:
     - secretName: jellyseerr-tls
       hosts:
-        - requests.yourdomain.com  # TODO
+        - requests.daviddelporte.com  # TODO
   rules:
-    - host: requests.yourdomain.com  # TODO
+    - host: requests.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

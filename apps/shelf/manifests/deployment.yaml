@@ -96,9 +96,9 @@ spec:
   tls:
     - secretName: shelf-tls
       hosts:
-        - shelf.yourdomain.com  # TODO
+        - shelf.daviddelporte.com  # TODO
   rules:
-    - host: shelf.yourdomain.com  # TODO
+    - host: shelf.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

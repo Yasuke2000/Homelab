@@ -37,7 +37,7 @@ spec:
           env:
             - name: JELLYFIN_PublishedServerUrl
               # TODO: set your domain
-              value: "https://jellyfin.yourdomain.com"
+              value: "https://jellyfin.daviddelporte.com"
           volumeMounts:
             - name: config
               mountPath: /config
@@ -111,9 +111,9 @@ spec:
   tls:
     - secretName: jellyfin-tls
       hosts:
-        - jellyfin.yourdomain.com  # TODO
+        - jellyfin.daviddelporte.com  # TODO
   rules:
-    - host: jellyfin.yourdomain.com  # TODO
+    - host: jellyfin.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

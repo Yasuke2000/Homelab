@@ -66,7 +66,7 @@ Commit en push. ArgoCD past de ClusterIssuers automatisch aan.
 ### Stap 2 — Domein instellen in alle manifests
 
 ```bash
-# Vervang yourdomain.com door jouw domein in de hele repo (eenmalig):
+# Vervang daviddelporte.com door jouw domein in de hele repo (eenmalig):
 find apps -name "*.yaml" -exec sed -i 's/yourdomain\.com/JOUWDOMEIN.com/g' {} +
 
 # Controleer wat er veranderd is:
@@ -261,6 +261,6 @@ kubectl delete secret <cert-secretname> -n <namespace>
 ## Huidige staat van de repo
 
 - Alle ingresses: `letsencrypt-staging` ✅ (veilig voor eerste deploy)
-- Email: `you@yourdomain.com` — **TODO: aanpassen**
-- Domein: `yourdomain.com` — **TODO: vervangen zodra domein gekocht**
+- Email: `you@daviddelporte.com` — **TODO: aanpassen**
+- Domein: `daviddelporte.com` — **TODO: vervangen zodra domein gekocht**
 - Challenge methode: HTTP-01 — **overweeg DNS-01 als je Cloudflare gebruikt**

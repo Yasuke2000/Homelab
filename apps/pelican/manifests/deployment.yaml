@@ -45,7 +45,7 @@ spec:
           env:
             - name: APP_URL
               # TODO: set your Pelican domain
-              value: "https://games.yourdomain.com"
+              value: "https://games.daviddelporte.com"
             - name: DB_HOST
               value: pelican-mysql
             - name: DB_DATABASE
@@ -232,9 +232,9 @@ spec:
   tls:
     - secretName: pelican-tls
       hosts:
-        - games.yourdomain.com  # TODO
+        - games.daviddelporte.com  # TODO
   rules:
-    - host: games.yourdomain.com  # TODO
+    - host: games.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

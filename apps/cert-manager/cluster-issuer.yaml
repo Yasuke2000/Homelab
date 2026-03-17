@@ -1,14 +1,20 @@
 ---
 # ---------------------------------------------------------------------------
-# Let's Encrypt ClusterIssuers
+# Let's Encrypt ClusterIssuers — DNS-01 via Cloudflare
 #
-# Staging issuer: test without hitting LE rate limits
-# Prod issuer:    use in production once staging works
+# DNS-01 voordelen t.o.v. HTTP-01:
+#   - Geen port forwarding nodig (poort 80/443 hoeft niet open)
+#   - Ondersteunt wildcard certs (*.daviddelporte.com)
+#   - Werkt voor interne services die niet publiek bereikbaar zijn
 #
-# TODO: replace email with your actual email address
+# Vereiste: Cloudflare API token als K8s Secret in cert-manager namespace.
+# Aanmaken via scripts/create-k8s-secrets.sh (na secrets/secrets.yaml invullen)
+#
+# Staging issuer: testen zonder LE rate limits te raken
+# Prod issuer:    pas gebruiken NA verificatie met staging
 # ---------------------------------------------------------------------------
 
-# Staging — for testing (not trusted by browsers)
+# Staging — voor testen (niet vertrouwd door browsers)
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -16,17 +22,18 @@ metadata:
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    # TODO: replace with your email
-    email: you@yourdomain.com
+    email: admin@daviddelporte.com
     privateKeySecretRef:
       name: letsencrypt-staging-key
     solvers:
-      - http01:
-          ingress:
-            ingressClassName: traefik
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
 
 ---
-# Production — trusted by browsers (rate-limited: 5 certs/domain/week)
+# Productie — vertrouwd door browsers (rate-limit: 5 certs/domein/week)
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -34,11 +41,12 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    # TODO: replace with your email
-    email: you@yourdomain.com
+    email: admin@daviddelporte.com
     privateKeySecretRef:
       name: letsencrypt-prod-key
     solvers:
-      - http01:
-          ingress:
-            ingressClassName: traefik
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token

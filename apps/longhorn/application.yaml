@@ -55,13 +55,13 @@ spec:
               cert-manager.io/cluster-issuer: letsencrypt-staging
             hosts:
               - # TODO: set your Longhorn dashboard domain
-                host: longhorn.yourdomain.com
+                host: longhorn.daviddelporte.com
                 paths:
                   - /
             tls:
               - secretName: longhorn-tls
                 hosts:
-                  - longhorn.yourdomain.com  # TODO
+                  - longhorn.daviddelporte.com  # TODO
 
         # Tolerate control-plane taint (all nodes are control-plane + worker)
         longhornManager:

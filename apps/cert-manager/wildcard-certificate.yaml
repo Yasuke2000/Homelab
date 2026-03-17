@@ -1,0 +1,26 @@
+---
+# ---------------------------------------------------------------------------
+# Wildcard TLS certificaat voor *.daviddelporte.com
+#
+# Dit ene certificaat dekt ALLE subdomains:
+#   vault.daviddelporte.com, grafana.daviddelporte.com, etc.
+#
+# Het Secret "wildcard-tls" wordt aangemaakt in de cert-manager namespace
+# en via ClusterSecretStore beschikbaar gesteld aan andere namespaces
+# (of kopieer het Secret handmatig naar elke namespace na aanmaak).
+#
+# Alle Ingress resources gebruiken: secretName: wildcard-tls
+# ---------------------------------------------------------------------------
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-daviddelporte
+  namespace: cert-manager
+spec:
+  secretName: wildcard-tls
+  issuerRef:
+    name: letsencrypt-staging   # wissel naar letsencrypt-prod na verificatie
+    kind: ClusterIssuer
+  dnsNames:
+    - "daviddelporte.com"
+    - "*.daviddelporte.com"

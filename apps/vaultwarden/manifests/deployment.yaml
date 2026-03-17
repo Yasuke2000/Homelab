@@ -27,7 +27,7 @@ spec:
           env:
             - name: DOMAIN
               # TODO: set your Vaultwarden domain
-              value: "https://vault.yourdomain.com"
+              value: "https://vault.daviddelporte.com"
             - name: SIGNUPS_ALLOWED
               value: "false"    # disable public signups after initial setup
             - name: ADMIN_TOKEN
@@ -37,7 +37,7 @@ spec:
                   key: adminToken
             # TODO: configure SMTP for email notifications
             # - name: SMTP_HOST
-            #   value: "smtp.yourdomain.com"
+            #   value: "smtp.daviddelporte.com"
             # - name: SMTP_PORT
             #   value: "587"
             # - name: SMTP_USERNAME
@@ -114,9 +114,9 @@ spec:
   tls:
     - secretName: vaultwarden-tls
       hosts:
-        - vault.yourdomain.com   # TODO
+        - vault.daviddelporte.com   # TODO
   rules:
-    - host: vault.yourdomain.com  # TODO
+    - host: vault.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

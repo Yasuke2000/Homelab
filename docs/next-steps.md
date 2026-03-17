@@ -24,12 +24,12 @@ Each item is a single, concrete action you can complete independently.
   ```
 
 - [ ] **0.3** Choose your domain (e.g. `home.example.com`) and replace every
-  `yourdomain.com` placeholder:
+  `daviddelporte.com` placeholder:
   ```bash
-  grep -r "yourdomain.com" . --include="*.yaml" --include="*.nix" -l
+  grep -r "daviddelporte.com" . --include="*.yaml" --include="*.nix" -l
   # Then bulk-replace:
   sed -i 's/yourdomain\.com/home.example.com/g' \
-    $(grep -rl "yourdomain.com" . --include="*.yaml" --include="*.nix")
+    $(grep -rl "daviddelporte.com" . --include="*.yaml" --include="*.nix")
   ```
 
 ---
@@ -313,7 +313,7 @@ Each item is a single, concrete action you can complete independently.
   Actions secrets so Renovate can open automatic dependency update PRs.
 
 - [ ] **8.5** Set up Uptime Kuma monitors for all services via its web UI at
-  `status.yourdomain.com` after deployment.
+  `status.daviddelporte.com` after deployment.
 
 - [ ] **8.6** Review and tighten K8s RBAC — currently using `default` ArgoCD project
   (unrestricted). Consider creating per-team ArgoCD projects with resource restrictions.

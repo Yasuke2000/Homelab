@@ -261,7 +261,7 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 ## FASE 6 — Domein + finale TODOs
 
-Na fase 5 draaien alle apps maar zijn ze niet bereikbaar want de domeinen zijn nog `yourdomain.com`. Vertel me je domeinnaam en ik vervang alle TODOs in één keer.
+Na fase 5 draaien alle apps maar zijn ze niet bereikbaar want de domeinen zijn nog `daviddelporte.com`. Vertel me je domeinnaam en ik vervang alle TODOs in één keer.
 
 **Andere finale TODOs:**
 - TrueNAS NFS shares aanmaken (voor Jellyfin media, Longhorn backup, ROMs)

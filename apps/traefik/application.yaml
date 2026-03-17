@@ -53,7 +53,7 @@ spec:
           dashboard:
             enabled: true
             # TODO: set your domain
-            # matchRule: Host(`traefik.yourdomain.com`)
+            # matchRule: Host(`traefik.daviddelporte.com`)
             entryPoints:
               - websecure
             middlewares:

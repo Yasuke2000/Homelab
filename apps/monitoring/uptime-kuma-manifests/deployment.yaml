@@ -86,9 +86,9 @@ spec:
   tls:
     - secretName: uptime-kuma-tls
       hosts:
-        - status.yourdomain.com  # TODO
+        - status.daviddelporte.com  # TODO
   rules:
-    - host: status.yourdomain.com  # TODO
+    - host: status.daviddelporte.com  # TODO
       http:
         paths:
           - path: /

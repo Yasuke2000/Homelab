@@ -5,7 +5,7 @@
 # Image: vaultwarden/server (unofficial, but the de-facto standard)
 # Data stored on Longhorn PVC.
 #
-# TODO: replace all yourdomain.com references
+# TODO: replace all daviddelporte.com references
 # TODO: configure SMTP for email notifications (2FA emails, invites)
 # ---------------------------------------------------------------------------
 

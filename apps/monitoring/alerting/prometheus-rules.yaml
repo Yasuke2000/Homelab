@@ -193,7 +193,7 @@ spec:
             severity: critical
           annotations:
             summary: "Longhorn volume {{ $labels.volume }} is faulted"
-            description: "Check Longhorn UI at longhorn.yourdomain.com"  # TODO: update domain
+            description: "Check Longhorn UI at longhorn.daviddelporte.com"  # TODO: update domain
 
         - alert: LonghornVolumeAtRisk
           expr: longhorn_volume_robustness == 1  # 1 = Degraded
