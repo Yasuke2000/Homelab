@@ -75,6 +75,7 @@ Sovereign bare-metal homelab op 4 HP EliteDesk 800 G4 mini-PC's:
 | Shelf | shelf.daviddelporte.com |
 | SilverBullet | notes.daviddelporte.com |
 | Longhorn UI | longhorn.daviddelporte.com |
+| Uptime Kuma | status.daviddelporte.com |
 
 ---
 
@@ -203,7 +204,17 @@ Elke push op master triggert 5 checks — alle slagen:
 
 ---
 
-## 9. Recentste wijzigingen (2026-03-18)
+## 9. Bekende beperkingen
+
+- **Geen gecentraliseerde logging**: Loki + Promtail zijn gepland voor een toekomstige fase. Debugging vereist nu `kubectl logs` per pod.
+- **Alertmanager receivers**: Alertmanager is gedeployed maar heeft geen receiver geconfigureerd. Alerts vuren maar worden nergens naartoe gestuurd. Discord webhook moet handmatig worden ingesteld na eerste boot (issue #18).
+- **Longhorn recurring snapshots**: Automatische snapshots zijn geconfigureerd via RecurringJob CRDs, maar de weekly backup naar TrueNAS NFS vereist dat de NFS share eerst aangemaakt wordt (issue #18).
+- **Geen VPN / remote access**: Geen Cloudflare Tunnel of Tailscale geconfigureerd. Externe toegang tot de cluster is niet mogelijk zonder fysiek aanwezig te zijn op het netwerk. Gepland voor een toekomstige fase.
+- **Database backups niet geautomatiseerd**: Apps met databanken (Ghost, Vaultwarden, RomM, Pelican, Shelf, Actual Budget) hebben geen automatische CronJob backup. Gepland als aparte issue na TrueNAS setup.
+
+---
+
+## 10. Recentste wijzigingen (2026-03-18)
 
 - Age key vervangen: WSL2 distro was weg, nieuwe key gegenereerd op Windows
 - Alle secrets encrypted: k3s, vaultwarden (incl. SMTP), cloudflare, grafana, alle app DB passwords

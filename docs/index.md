@@ -84,6 +84,7 @@ graph TB
 | Silverbullet | notes.daviddelporte.com | Personal knowledge base |
 | Shelf | shelf.daviddelporte.com | Book tracking |
 | Homepage | home.daviddelporte.com | Self-hosted dashboard |
+| Uptime Kuma | status.daviddelporte.com | Uptime monitoring and status page |
 | Grafana | grafana.daviddelporte.com | Metrics and alerting |
 
 ---
