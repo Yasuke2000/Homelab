@@ -64,8 +64,29 @@ spec:
             serviceMonitorSelectorNilUsesHelmValues: false
             podMonitorSelectorNilUsesHelmValues: false
 
-        # Alertmanager — configure after setup
+        # Alertmanager
         alertmanager:
+          config:
+            global:
+              resolve_timeout: 5m
+            route:
+              group_by: ['alertname', 'namespace']
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 12h
+              receiver: 'discord'
+              routes:
+                - receiver: 'discord'
+                  matchers:
+                    - severity =~ "critical|warning"
+            receivers:
+              # TODO: deploy alertmanager-discord bridge before first boot
+              # See docs/alerting.md for setup instructions
+              - name: 'discord'
+                webhook_configs:
+                  - url: 'http://alertmanager-discord.monitoring.svc.cluster.local:9094'
+                    send_resolved: true
+            templates: []
           alertmanagerSpec:
             storage:
               volumeClaimTemplate:
