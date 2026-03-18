@@ -74,7 +74,6 @@ Sovereign bare-metal homelab op 4 HP EliteDesk 800 G4 mini-PC's:
 | RomM | romm.daviddelporte.com |
 | Shelf | shelf.daviddelporte.com |
 | SilverBullet | notes.daviddelporte.com |
-| Uptime Kuma | status.daviddelporte.com |
 | Longhorn UI | longhorn.daviddelporte.com |
 
 ---
@@ -95,8 +94,8 @@ Alle velden zijn aanwezig en versleuteld met AES256_GCM:
 |------|--------|
 | k3s.token | ✅ Encrypted |
 | vaultwarden.adminToken | ✅ Encrypted |
-| vaultwarden.smtpUsername | ✅ Encrypted (a53632001@smtp-brevo.com) |
-| vaultwarden.smtpPassword | ✅ Encrypted (Brevo key ingevuld) |
+| vaultwarden.smtpUsername | ✅ Encrypted |
+| vaultwarden.smtpPassword | ✅ Encrypted |
 | ghost.dbPassword | ✅ Encrypted |
 | silverbullet.password | ✅ Encrypted |
 | shelf.sessionSecret | ✅ Encrypted |
@@ -105,7 +104,7 @@ Alle velden zijn aanwezig en versleuteld met AES256_GCM:
 | pelican.dbPassword | ✅ Encrypted |
 | actualBudget.password | ✅ Encrypted |
 | grafana.adminPassword | ✅ Encrypted |
-| cloudflare.apiToken | ✅ Encrypted (Cloudflare "Edit zone DNS" token ingevuld) |
+| cloudflare.apiToken | ✅ Encrypted |
 
 **Opmerking**: `renovate.githubToken` is NIET aanwezig — Renovate draait als GitHub App en heeft geen PAT nodig. Dit veld is bewust verwijderd.
 
@@ -163,12 +162,12 @@ Elke push op master triggert 5 checks — alle slagen:
 
 **Issue #14 — Fase 2 (VOLGENDE STAP):**
 - [ ] Boot elke HP EliteDesk van NixOS minimal ISO
-- [ ] Run `ssh root@10.0.20.1X 'bash -s' < scripts/collect-hardware-info.sh`
-- [ ] Vul NIC naam in (hosts/nodeX/default.nix + modules/k3s-server-*.nix)
-- [ ] Vul disk device in (modules/disk-config.nix)
+- [ ] Boot elke HP EliteDesk van NixOS minimal ISO (Ventoy USB)
+- [ ] Run `bash scripts/smart-deploy.sh <temp-ip> nodeX server-init/join`
+- [ ] Script detecteert automatisch MAC + disk + genereert age keys
 
 **Issue #15 — Fase 3:**
-- [ ] `bash scripts/deploy-node.sh node1/2/3`
+- [ ] `bash scripts/smart-deploy.sh <temp-ip> node1/2/3 server-init/join`
 - [ ] Alle 3 nodes Ready in `kubectl get nodes`
 
 **Issue #16 — Fase 4:**

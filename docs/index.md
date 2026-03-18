@@ -1,104 +1,154 @@
 # David's Homelab
 
-Sovereign bare-metal infrastructure running a **self-healing Kubernetes cluster**
-on NixOS — fully declarative, GitOps-driven, zero manual configuration.
+A production-grade bare-metal infrastructure project built for learning, self-hosting,
+and demonstrating real-world engineering skills. Every node, every certificate, every
+secret, and every deployment is managed entirely through code.
+
+---
 
 ## Architecture
 
 ```mermaid
 graph TB
-    subgraph Internet
-        User((User)) -->|HTTPS| CF[Cloudflare DNS + Proxy]
+    subgraph Internet["Internet"]
+        User((User)) -->|HTTPS| CF["Cloudflare\nDNS + Proxy"]
     end
 
-    subgraph VLAN20["Home Network — VLAN 20 (10.0.20.0/24)"]
-        CF -->|Port 443| Traefik[Traefik v3\nIngress]
+    subgraph Home["Home Network — VLAN 20  ·  10.0.20.0/24"]
+        CF -->|443| Traefik["Traefik v3\nIngress Controller\n10.0.20.100"]
 
-        subgraph K3s["K3s HA Cluster — embedded etcd"]
+        subgraph Cluster["K3s HA Cluster — embedded etcd"]
             Traefik --> Apps
 
-            subgraph CP["Control Plane × 3"]
-                N1[node1\n10.0.20.11\netcd leader]
-                N2[node2\n10.0.20.12]
-                N3[node3\n10.0.20.13]
+            subgraph CP["Control Plane  ×3"]
+                N1["node1  ·  10.0.20.11\netcd leader"]
+                N2["node2  ·  10.0.20.12"]
+                N3["node3  ·  10.0.20.13"]
                 N1 --- N2
                 N2 --- N3
             end
 
-            subgraph Apps["Applications"]
-                Vault[Vaultwarden\nPassword Manager]
-                Ghost[Ghost\nBlog]
-                Jellyfin[Jellyfin\nMedia Server]
-                More[+ 10 more apps]
+            subgraph Apps["Self-hosted Applications"]
+                direction LR
+                Vault["Vaultwarden"]
+                Ghost["Ghost"]
+                Jelly["Jellyfin"]
+                More["+ 8 more apps"]
             end
 
-            ArgoCD[ArgoCD v3\nGitOps] -.->|Syncs from Git| Apps
-            Longhorn[Longhorn\nDistributed Storage] --> Apps
+            ArgoCD["ArgoCD v3\nGitOps Controller"] -.->|"git push → sync"| Apps
+            Longhorn["Longhorn\nDistributed Storage"] --> Apps
         end
 
-        NAS[TrueNAS SCALE\n10.0.20.14\nNFS Storage] --> Longhorn
+        NAS["TrueNAS SCALE\n10.0.20.14\nNFS storage"]
+        NAS --> Longhorn
     end
 
-    subgraph Git["GitHub — Source of Truth"]
-        Repo[(Yasuke2000/Homelab\nNixOS + K8s manifests\nSops-encrypted secrets)]
+    subgraph Git["Source of Truth"]
+        Repo[("GitHub\nNixOS configs\nK8s manifests\nEncrypted secrets")]
     end
 
-    Repo -->|Reconcile| ArgoCD
+    Repo -->|reconcile| ArgoCD
 ```
 
-## Stack
+---
 
-| Layer | Technology | Why |
+## Tech Stack
+
+| Layer | Technology | Version | Purpose |
+|---|---|---|---|
+| **OS** | NixOS | 25.05 | Declarative, reproducible — entire OS in code |
+| **Cluster** | K3s (embedded etcd) | nixos-25.05 | Lightweight HA Kubernetes, no external etcd |
+| **GitOps** | ArgoCD | v3 (chart 7.8.0) | Self-healing — cluster always matches git |
+| **Secrets** | sops-nix + age | follows nixpkgs | Secrets encrypted in git, zero secret server |
+| **Ingress** | Traefik | v3 (chart 33.2.1) | Dynamic routing via Kubernetes CRDs |
+| **Load balancer** | MetalLB | v0.15.3 | Bare-metal LoadBalancer IPs via L2 |
+| **Storage** | Longhorn + TrueNAS NFS | 1.11.0 | Replicated block storage + NAS for media |
+| **TLS** | cert-manager + Cloudflare | v1.20.0 | Automatic wildcard certs via DNS-01 |
+| **Policy** | Kyverno | 3.4.0 | Mutation policies (NixOS PATH fix for Longhorn) |
+| **Monitoring** | kube-prometheus-stack | 70.4.2 | Prometheus + Grafana + Alertmanager |
+
+---
+
+## Self-hosted Applications
+
+| App | Subdomain | Purpose |
 |---|---|---|
-| OS | NixOS 25.05 | Fully declarative, reproducible, rollback on any change |
-| Cluster | K3s (embedded etcd, HA) | Lightweight K8s, no external etcd dependency |
-| GitOps | ArgoCD v3 | Self-healing — cluster always matches git state |
-| Secrets | sops-nix + age | Secrets encrypted in git, no secret server needed |
-| Ingress | Traefik v3 | Dynamic config via K8s CRDs |
-| LoadBalancer | MetalLB v0.15 | Bare-metal LoadBalancer IPs on home network |
-| Storage | Longhorn + TrueNAS NFS | Replicated block storage + NAS for media |
-| TLS | cert-manager + Cloudflare DNS-01 | Automatic wildcard certs, works behind NAT |
-| Monitoring | kube-prometheus-stack | Grafana + Alertmanager + Prometheus |
+| Vaultwarden | vault.daviddelporte.com | Password manager (Bitwarden-compatible) |
+| Ghost | daviddelporte.com | Personal blog |
+| Jellyfin | jellyfin.daviddelporte.com | Media server |
+| Jellyseerr | requests.daviddelporte.com | Media request management |
+| RoMM | romm.daviddelporte.com | ROM / game library manager |
+| Pelican | games.daviddelporte.com | Game server management |
+| Actual Budget | budget.daviddelporte.com | Personal finance |
+| Silverbullet | notes.daviddelporte.com | Personal knowledge base |
+| Shelf | shelf.daviddelporte.com | Book tracking |
+| Homepage | home.daviddelporte.com | Self-hosted dashboard |
+| Grafana | grafana.daviddelporte.com | Metrics and alerting |
 
-## Applications
+---
 
-| App | Purpose |
-|---|---|
-| Vaultwarden | Self-hosted password manager (Bitwarden compatible) |
-| Ghost | Personal blog and writing platform |
-| Jellyfin | Media server (films, series, music) |
-| Jellyseerr | Media request management |
-| RoMM | ROM manager for game library |
-| Pelican | Game server management panel |
-| Actual Budget | Personal finance / budgeting |
-| Silverbullet | Personal knowledge base |
-| Shelf | Book tracking |
-| Homepage | Self-hosted dashboard |
-| Grafana | Metrics and alerting |
+## Engineering highlights
 
-## Key design decisions
+### Fully declarative infrastructure
 
-**Why NixOS?** Every node is described in code. Rolling back a broken update is one
-command. Adding a new node takes one script. The entire cluster state lives in git.
-
-**Why not use a managed cloud?** Full control, zero vendor lock-in, data stays home.
-Monthly cost: electricity. Compare to €50–150/month for equivalent cloud compute.
-
-**Why sops + age instead of Vault?** No secret server to maintain. Secrets are
-encrypted files in git, decryptable only by machines that have the private key.
-Works offline, survives cluster rebuilds.
-
-## Deployment
-
-Everything is automated. Provisioning a bare-metal node:
+Every node is defined in a NixOS flake. Provisioning a new bare-metal machine
+is a single command — the script discovers hardware, generates cryptographic keys,
+encrypts secrets for that specific node, installs NixOS, and verifies cluster
+membership, all without touching the machine manually.
 
 ```bash
-# 1. Boot node from Ventoy USB (NixOS 25.05 minimal ISO)
-# 2. Note the DHCP IP
-# 3. From workstation:
-nix develop
 bash scripts/smart-deploy.sh 192.168.1.50 node1 server-init
 ```
 
-The script discovers hardware, generates cryptographic keys, encrypts secrets
-for the new node, deploys NixOS, and verifies cluster membership — fully unattended.
+### Secrets encrypted in git
+
+All secrets (database passwords, API tokens, TLS credentials) are encrypted with
+[age](https://age-encryption.org/) using sops. They live in the public repo as
+encrypted blobs — readable only by machines whose keys are in `.sops.yaml`.
+No secret server, no environment variables in CI, no risk of accidental exposure.
+
+### Self-healing GitOps
+
+ArgoCD monitors the git repo and continuously reconciles the cluster to match it.
+If someone manually edits a resource, ArgoCD reverts it within minutes.
+New apps are added by committing a Helm `Application` manifest — no `kubectl apply`
+needed.
+
+### Automatic rolling upgrades
+
+```bash
+bash scripts/upgrade-cluster.sh
+```
+
+Upgrades nodes one at a time (workers first, etcd leader last), verifies each
+node is `Ready` before continuing, and rolls back automatically on failure.
+
+---
+
+## Why bare-metal over cloud?
+
+| | Bare-metal homelab | Equivalent cloud |
+|---|---|---|
+| **Monthly cost** | ~€5 (electricity) | ~€80–150 |
+| **Data sovereignty** | Full — nothing leaves home | Vendor-controlled |
+| **Learning depth** | Hardware, OS, networking, K8s | Managed services only |
+| **Vendor lock-in** | None | High |
+
+The goal was to build something that mirrors production infrastructure — with
+real failure modes, real networking constraints, and real operational runbooks —
+not a managed service that abstracts all the interesting problems away.
+
+---
+
+## CI / CD pipeline
+
+Every push to `master` runs 5 automated checks:
+
+| Check | What it validates |
+|---|---|
+| `nix flake check` | All NixOS configurations build without errors |
+| `yamllint` | All YAML manifests pass linting |
+| `kubeconform` | All Kubernetes manifests validate against API schemas |
+| `sops-check + trufflehog` | No plaintext secrets committed |
+| `line-endings` | LF only (CRLF breaks the Nix parser) |
