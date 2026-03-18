@@ -101,7 +101,7 @@
 
     # Storage helpers (Longhorn needs these on the host)
     nfs-utils
-    open-iscsi
+    openiscsi
   ];
 
   # ---------------------------------------------------------------------------
