@@ -17,7 +17,7 @@
   };
 
   # Disk device overschrijven indien niet /dev/sda:
-  # disko.devices.disk.main.device = "/dev/nvme0n1";
+  homelab.node.disk = "TODO_REPLACE_WITH_DISK";
 
   # Node-specifieke SSH keys (extra naast common/default.nix)
   users.users.root.openssh.authorizedKeys.keys = [];

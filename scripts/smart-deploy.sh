@@ -70,8 +70,8 @@ info "Detected primary disk: $DISK"
 # =============================================================================
 info "==> Step 2: Patching $HOST_FILE"
 
-CURRENT_MAC=$(grep 'mac =' "$HOST_FILE" | grep -o '"[^"]*"' | tr -d '"')
-CURRENT_DISK_LINE=$(grep 'disko.devices.disk.main.device' "$HOST_FILE" || true)
+CURRENT_MAC=$(grep 'mac =' "$HOST_FILE" | grep -o '"[^"]*"' | tr -d '"' | head -1)
+CURRENT_DISK=$(grep 'disk =' "$HOST_FILE" | grep -o '"[^"]*"' | tr -d '"' | head -1)
 
 if [[ "$CURRENT_MAC" == "TODO_REPLACE_WITH_MAC" ]]; then
   if [[ "$DRY_RUN" == "--dry-run" ]]; then
@@ -84,13 +84,15 @@ else
   info "MAC already set to $CURRENT_MAC — skipping"
 fi
 
-if [[ "$DISK" != "/dev/sda" ]]; then
+if [[ "$CURRENT_DISK" == "TODO_REPLACE_WITH_DISK" ]]; then
   if [[ "$DRY_RUN" == "--dry-run" ]]; then
-    info "[dry-run] Would uncomment disko disk device = \"$DISK\" in $HOST_FILE"
+    info "[dry-run] Would set disk = \"$DISK\" in $HOST_FILE"
   else
-    sed -i "s|# disko.devices.disk.main.device = \"/dev/nvme0n1\";|disko.devices.disk.main.device = \"$DISK\";|" "$HOST_FILE"
-    info "Set disko disk device = \"$DISK\""
+    sed -i "s|disk = \"TODO_REPLACE_WITH_DISK\"|disk = \"$DISK\"|" "$HOST_FILE"
+    info "Set disk = \"$DISK\""
   fi
+else
+  info "Disk already set to $CURRENT_DISK — skipping"
 fi
 
 # =============================================================================
@@ -130,9 +132,12 @@ if [[ "$DRY_RUN" != "--dry-run" ]]; then
     # Add node key as recipient in both creation rules
     sed -i "/\*workstation/a\\              - *$NODE_NAME" "$SOPS_FILE"
     info "Added $NODE_NAME to .sops.yaml"
-    info "Re-encrypting secrets..."
+    info "Re-encrypting secrets (all secret files)..."
     sops updatekeys "$REPO_ROOT/secrets/secrets.yaml"
-    info "Secrets re-encrypted"
+    for app_secret in "$REPO_ROOT"/apps/*/manifests/secret.yaml; do
+      [[ -f "$app_secret" ]] && sops updatekeys "$app_secret"
+    done
+    info "All secrets re-encrypted"
   fi
 fi
 
@@ -145,7 +150,7 @@ if [[ "$DRY_RUN" == "--dry-run" ]]; then
   info "[dry-run] Would commit: feat: add hardware config for $NODE_NAME"
 else
   cd "$REPO_ROOT"
-  git add "hosts/$NODE_NAME/default.nix" ".sops.yaml" "secrets/" || true
+  git add "hosts/$NODE_NAME/default.nix" ".sops.yaml" "secrets/" "apps/" || true
   if ! git diff --cached --quiet; then
     git commit -m "feat: add hardware config for $NODE_NAME ($MAC, $DISK)"
     info "Committed changes"

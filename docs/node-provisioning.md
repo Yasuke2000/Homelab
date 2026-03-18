@@ -39,6 +39,47 @@ Boot installer (DHCP) → smart-deploy.sh → discovers MAC + disk
 | node8  | 10.0.20.18  | dedicated worker     |
 | node9  | 10.0.20.19  | dedicated worker     |
 
+## USB preparation (Ventoy)
+
+The provisioning USB uses [Ventoy](https://ventoy.net) — one USB, multiple ISOs, no re-flashing.
+
+### Install Ventoy on the USB (Windows)
+
+1. Download Ventoy from https://github.com/ventoy/Ventoy/releases (latest)
+2. Run `Ventoy2Disk.exe`, select your USB drive (drive D:), click Install
+3. Rename the main Ventoy partition to `HOMELAB` (right-click in Explorer → Rename)
+
+### Add NixOS 25.05 minimal ISO
+
+Download the NixOS 25.05 minimal ISO and copy it to the Ventoy partition:
+
+```
+ISO URL:
+https://channels.nixos.org/nixos-25.05/latest-nixos-minimal-x86_64-linux.iso
+
+# Or with curl (Git Bash):
+curl -L -o D:/nixos-minimal-25.05-x86_64-linux.iso \
+  https://channels.nixos.org/nixos-25.05/latest-nixos-minimal-x86_64-linux.iso
+```
+
+Verify the SHA-256 hash from https://channels.nixos.org/nixos-25.05/ before booting.
+
+### Boot from Ventoy
+
+1. Insert USB, boot node (F9 or F12 for boot menu on HP EliteDesk)
+2. Select the USB drive in BIOS boot menu
+3. Ventoy menu appears → select `nixos-minimal-25.05-x86_64-linux.iso`
+4. At NixOS boot prompt, wait for `nixos@nixos:~$`
+5. Note the DHCP IP: `ip addr show | grep 'inet '`
+6. Verify SSH works: `ssh root@<dhcp-ip>` (no password needed on NixOS installer)
+
+### HP EliteDesk 800 G4 BIOS settings
+
+Before first boot, verify these BIOS settings (F10 at startup):
+- Secure Boot: **Disabled** (NixOS installer won't boot with Secure Boot)
+- Boot Mode: **UEFI** (not Legacy/CSM)
+- Wake on LAN: **Enabled** (optional, useful for remote management)
+
 ## Prerequisites
 
 ```bash

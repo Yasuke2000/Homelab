@@ -32,6 +32,20 @@
       description = "Statisch IP adres met prefix lengte (CIDR notatie).";
       example     = "10.0.20.11/24";
     };
+
+    disk = lib.mkOption {
+      type        = lib.types.str;
+      default     = "TODO_REPLACE_WITH_DISK";
+      description = ''
+        Primaire disk device path.
+        HP EliteDesk 800 G4 NVMe  → /dev/nvme0n1
+        HP EliteDesk 800 G4 SATA  → /dev/sda
+        Invullen na hardware discovery:
+          lsblk -dpno NAME,SIZE | grep -v 'loop\|sr' | sort -k2 -hr | head -1
+        Of via smart-deploy.sh (automatisch).
+      '';
+      example = "/dev/nvme0n1";
+    };
   };
 
   config = {

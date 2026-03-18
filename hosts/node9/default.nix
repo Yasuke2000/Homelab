@@ -19,6 +19,6 @@
     "--node-ip=10.0.20.19"
   ]);
 
-  # disko.devices.disk.main.device = "/dev/nvme0n1";
+  homelab.node.disk = "TODO_REPLACE_WITH_DISK";
   users.users.root.openssh.authorizedKeys.keys = [];
 }
