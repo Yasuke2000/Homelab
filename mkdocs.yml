@@ -23,16 +23,16 @@ theme:
     - content.action.edit
 
 nav:
-  - Home: README.md
+  - Home: index.md
   - Deployment:
-      - Deployment Guide: docs/deployment-guide.md
-      - Node Provisioning: docs/node-provisioning.md
-      - Staging to Production: docs/staging-to-prod.md
+      - Deployment Guide: deployment-guide.md
+      - Node Provisioning: node-provisioning.md
+      - Staging to Production: staging-to-prod.md
   - Reference:
-      - Cert Manager TLS: docs/cert-manager-tls.md
-      - Gotchas: docs/gotchas.md
-      - Recovery: docs/recovery.md
-      - Project Summary: docs/project-summary.md
+      - Cert Manager TLS: cert-manager-tls.md
+      - Gotchas: gotchas.md
+      - Recovery: recovery.md
+      - Project Summary: project-summary.md
 
 markdown_extensions:
   - admonition
