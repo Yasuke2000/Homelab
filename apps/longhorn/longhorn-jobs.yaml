@@ -1,0 +1,33 @@
+---
+# ---------------------------------------------------------------------------
+# ArgoCD Application — Longhorn RecurringJobs
+#
+# Deploys snapshot and backup schedules after Longhorn is running (wave 0).
+# The Longhorn CRDs must exist before these resources can be applied.
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: longhorn-jobs
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Yasuke2000/Homelab.git
+    targetRevision: master
+    path: apps/longhorn/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: longhorn-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
