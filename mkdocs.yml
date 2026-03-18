@@ -1,6 +1,6 @@
 site_name: David's Homelab
 site_description: Sovereign bare-metal NixOS homelab — K3s HA cluster on HP EliteDesk 800 G4
-site_url: https://yasuke2000.github.io/Homelab
+site_url: https://homelab.daviddelporte.com
 repo_url: https://github.com/Yasuke2000/Homelab
 repo_name: Yasuke2000/Homelab
 edit_uri: edit/master/
@@ -36,8 +36,13 @@ nav:
 
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
