@@ -1,5 +1,10 @@
 # TLS / cert-manager setup
 
+> **Status (2026-03-18):** Dit project gebruikt al **DNS-01 via Cloudflare API** met wildcard
+> `*.daviddelporte.com`. De HTTP-01 sectie hieronder is puur ter referentie bewaard — de
+> daadwerkelijke configuratie in de repo gebruikt DNS-01. Zie
+> [Overstap naar DNS-01](#overstap-naar-dns-01-cloudflare) voor de actieve setup.
+
 ## Overzicht
 
 cert-manager v1.20 beheert automatisch TLS-certificaten via Let's Encrypt.
@@ -14,9 +19,10 @@ De cluster heeft twee ClusterIssuers:
 
 ---
 
-## HTTP-01 vs DNS-01 — kies de juiste voor jouw setup
+## HTTP-01 vs DNS-01 — referentie
 
-De cluster-issuer gebruikt nu **HTTP-01**. Dit heeft consequenties:
+> **Let op:** Deze repo gebruikt DNS-01 via Cloudflare. De HTTP-01 informatie hieronder is
+> puur ter referentie bewaard voor wie een andere setup heeft.
 
 ### HTTP-01 (huidige config)
 - Let's Encrypt plaatst een challenge-token op `http://jouwdomein.com/.well-known/acme-challenge/...`
@@ -261,6 +267,6 @@ kubectl delete secret <cert-secretname> -n <namespace>
 ## Huidige staat van de repo
 
 - Alle ingresses: `letsencrypt-staging` ✅ (veilig voor eerste deploy)
-- Email: `you@daviddelporte.com` — **TODO: aanpassen**
-- Domein: `daviddelporte.com` — **TODO: vervangen zodra domein gekocht**
-- Challenge methode: HTTP-01 — **overweeg DNS-01 als je Cloudflare gebruikt**
+- Email: `admin@daviddelporte.com` ✅
+- Domein: `daviddelporte.com` (Cloudflare) ✅
+- Challenge methode: DNS-01 via Cloudflare API ✅ (wildcard `*.daviddelporte.com`)
