@@ -37,8 +37,10 @@ spec:
                 hosts:
                   - grafana.daviddelporte.com  # TODO
 
-          # TODO: change admin password
-          adminPassword: "changeme"   # TODO — use sops secret
+          admin:
+            existingSecret: grafana-admin-secret
+            userKey: admin-user
+            passwordKey: admin-password
 
           persistence:
             enabled: true
