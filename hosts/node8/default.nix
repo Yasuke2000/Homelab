@@ -1,25 +1,22 @@
 { config, pkgs, lib, ... }:
 
 # ---------------------------------------------------------------------------
-# Node 2 — K3s server join — 10.0.20.12
-# HP EliteDesk 800 G4 Mini
+# Node 8 — K3s worker (dedicated agent, no etcd) — 10.0.20.18
 # ---------------------------------------------------------------------------
 
 {
-  networking.hostName = "homelab-node2";
+  networking.hostName = "homelab-node8";
 
   homelab.node = {
     mac = "TODO_REPLACE_WITH_MAC";
-    ip  = "10.0.20.12/24";
+    ip  = "10.0.20.18/24";
   };
 
-  # Node-specifiek --node-ip voor K3s (rest van flags in k3s-server-join.nix)
+  # Worker: override node-ip (k3s-worker.nix sets the base extraFlags)
   services.k3s.extraFlags = lib.mkForce (toString [
-    "--disable=traefik"
-    "--disable=servicelb"
-    "--disable=local-storage"
-    "--node-ip=10.0.20.12"
     "--kubelet-arg=cgroup-driver=systemd"
+    "--node-label=role=worker"
+    "--node-ip=10.0.20.18"
   ]);
 
   # disko.devices.disk.main.device = "/dev/nvme0n1";

@@ -1,24 +1,22 @@
 { config, pkgs, lib, ... }:
 
 # ---------------------------------------------------------------------------
-# Node 2 — K3s server join — 10.0.20.12
-# HP EliteDesk 800 G4 Mini
+# Node 4 — K3s server join (expansion control-plane slot) — 10.0.20.14
 # ---------------------------------------------------------------------------
 
 {
-  networking.hostName = "homelab-node2";
+  networking.hostName = "homelab-node4";
 
   homelab.node = {
     mac = "TODO_REPLACE_WITH_MAC";
-    ip  = "10.0.20.12/24";
+    ip  = "10.0.20.14/24";
   };
 
-  # Node-specifiek --node-ip voor K3s (rest van flags in k3s-server-join.nix)
   services.k3s.extraFlags = lib.mkForce (toString [
     "--disable=traefik"
     "--disable=servicelb"
     "--disable=local-storage"
-    "--node-ip=10.0.20.12"
+    "--node-ip=10.0.20.14"
     "--kubelet-arg=cgroup-driver=systemd"
   ]);
 

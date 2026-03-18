@@ -30,8 +30,7 @@
       # TODO: each host overrides --node-ip in its own default.nix
       # This is done via extraFlags concat — see hosts/node2/default.nix
 
-      # TODO: verify interface name (ip link show)
-      "--flannel-iface=eno1"
+      # --flannel-iface removed: K3s auto-detects via --node-ip routing
 
       "--kubelet-arg=cgroup-driver=systemd"
     ];

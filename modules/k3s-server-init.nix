@@ -42,9 +42,7 @@
       # "--tls-san=k8s.yourdomain.com"
 
       # Networking
-      # TODO: verify interface name on your hardware (ip link show)
-      #   HP EliteDesk 800 G4 onboard NIC is typically: eno1 or enp3s0
-      "--flannel-iface=eno1"
+      # --flannel-iface removed: K3s auto-detects via --node-ip routing (modules/networking.nix)
 
       # etcd metrics for Prometheus
       "--etcd-expose-metrics=true"

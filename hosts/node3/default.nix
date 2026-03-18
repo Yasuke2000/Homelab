@@ -1,38 +1,26 @@
 { config, pkgs, lib, ... }:
 
 # ---------------------------------------------------------------------------
-# Node 3 — K3s server join  (10.0.20.13)
+# Node 3 — K3s server join — 10.0.20.13
 # HP EliteDesk 800 G4 Mini
 # ---------------------------------------------------------------------------
 
 {
   networking.hostName = "homelab-node3";
 
-  # TODO: replace "eno1" with actual NIC name
-  networking.interfaces."eno1" = {
-    useDHCP = false;
-    ipv4.addresses = [{
-      address      = "10.0.20.13";
-      prefixLength = 24;
-    }];
+  homelab.node = {
+    mac = "TODO_REPLACE_WITH_MAC";
+    ip  = "10.0.20.13/24";
   };
 
-  networking.defaultGateway = "10.0.20.1";
-
-  # Override node-IP for K3s
   services.k3s.extraFlags = lib.mkForce (toString [
     "--disable=traefik"
     "--disable=servicelb"
     "--disable=local-storage"
     "--node-ip=10.0.20.13"
-    "--flannel-iface=eno1"  # TODO: verify interface name
     "--kubelet-arg=cgroup-driver=systemd"
   ]);
 
-  # TODO: verify disk device (lsblk)
   # disko.devices.disk.main.device = "/dev/nvme0n1";
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    # TODO: add your SSH public key(s)
-  ];
+  users.users.root.openssh.authorizedKeys.keys = [];
 }

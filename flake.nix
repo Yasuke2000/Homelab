@@ -27,18 +27,24 @@
       specialArgs = {
         inherit self;
       };
+
+      # Modules shared by every node
+      baseModules = [
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
+        ./common
+        ./modules/disk-config.nix
+        ./modules/networking.nix
+      ];
     in
     {
       # --- NixOS configurations for each node ---
       nixosConfigurations = {
 
+        # Control-plane nodes (HA embedded etcd)
         node1 = nixpkgs.lib.nixosSystem {
           inherit system specialArgs;
-          modules = [
-            disko.nixosModules.disko
-            sops-nix.nixosModules.sops
-            ./common
-            ./modules/disk-config.nix
+          modules = baseModules ++ [
             ./modules/k3s-server-init.nix
             ./hosts/node1
           ];
@@ -46,11 +52,7 @@
 
         node2 = nixpkgs.lib.nixosSystem {
           inherit system specialArgs;
-          modules = [
-            disko.nixosModules.disko
-            sops-nix.nixosModules.sops
-            ./common
-            ./modules/disk-config.nix
+          modules = baseModules ++ [
             ./modules/k3s-server-join.nix
             ./hosts/node2
           ];
@@ -58,13 +60,59 @@
 
         node3 = nixpkgs.lib.nixosSystem {
           inherit system specialArgs;
-          modules = [
-            disko.nixosModules.disko
-            sops-nix.nixosModules.sops
-            ./common
-            ./modules/disk-config.nix
+          modules = baseModules ++ [
             ./modules/k3s-server-join.nix
             ./hosts/node3
+          ];
+        };
+
+        # Expansion control-plane slots (node4-6 = server-join, same as node2/3)
+        node4 = nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = baseModules ++ [
+            ./modules/k3s-server-join.nix
+            ./hosts/node4
+          ];
+        };
+
+        node5 = nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = baseModules ++ [
+            ./modules/k3s-server-join.nix
+            ./hosts/node5
+          ];
+        };
+
+        node6 = nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = baseModules ++ [
+            ./modules/k3s-server-join.nix
+            ./hosts/node6
+          ];
+        };
+
+        # Dedicated worker slots (node7-9 = agent only, no etcd/API server)
+        node7 = nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = baseModules ++ [
+            ./modules/k3s-worker.nix
+            ./hosts/node7
+          ];
+        };
+
+        node8 = nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = baseModules ++ [
+            ./modules/k3s-worker.nix
+            ./hosts/node8
+          ];
+        };
+
+        node9 = nixpkgs.lib.nixosSystem {
+          inherit system specialArgs;
+          modules = baseModules ++ [
+            ./modules/k3s-worker.nix
+            ./hosts/node9
           ];
         };
 
@@ -78,6 +126,7 @@
           k9s
           sops
           age
+          ssh-to-age
           nixos-anywhere.packages.${system}.nixos-anywhere
         ];
       };

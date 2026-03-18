@@ -210,3 +210,89 @@ nfsvers=4.1,hard,intr,rsize=1048576,wsize=1048576,timeo=600
 ```
 
 Avoid `soft` mounts — a soft NFS timeout causes silent data corruption.
+
+---
+
+## #9 openiscsi package name (no hyphen)
+
+**Symptom:** `nix flake check` fails with `undefined variable 'open-iscsi'`.
+
+**Fix:** The correct nixpkgs package name is `openiscsi` (no hyphen):
+
+```nix
+environment.systemPackages = with pkgs; [ openiscsi ];  # correct
+# NOT: open-iscsi  ← undefined
+```
+
+---
+
+## #10 .sops.yaml age recipient indentation
+
+**Symptom:** yamllint fails with "wrong indentation: expected X but found Y"
+on the age recipient lines.
+
+**Fix:** Age recipients must be at exactly 10 spaces of indentation:
+```yaml
+creation_rules:
+  - path_regex: secrets/.*\.yaml$
+    key_groups:
+      - age:
+          - *workstation   # ← 10 spaces
+```
+
+---
+
+## #11 Grafana admin password via existingSecret
+
+**Symptom:** Grafana Helm chart with `adminPassword: "hardcoded"` in values.yaml
+exposes the password in git history.
+
+**Fix:** Use `existingSecret` with a sops-encrypted Kubernetes Secret:
+```yaml
+# In Helm values:
+admin:
+  existingSecret: grafana-admin-secret
+  userKey: admin-user
+  passwordKey: admin-password
+```
+The secret itself is in `apps/monitoring/manifests/secret.yaml` (sops-encrypted).
+
+---
+
+## #12 K3s token immutability after cluster bootstrap
+
+**Symptom:** Changing `k3s/token` in secrets.yaml after cluster init causes nodes
+to be unable to rejoin — the token is burned into etcd at `cluster-init`.
+
+**Rule:** The K3s cluster token is **immutable** after `--cluster-init`. Never
+rotate it while the cluster is running. If you must change it, full cluster
+rebuild is required.
+
+---
+
+## #13 systemd-networkd conflicts with networking.interfaces
+
+**Symptom:** Network comes up on wrong interface, or doesn't come up at all.
+Boot logs show conflicting configuration.
+
+**Root cause:** Mixing `networking.interfaces` with `networking.useNetworkd = true`
+causes both networkd and scripted networking to fight over the interface.
+
+**Fix:** With `networking.useNetworkd = true`, use only `systemd.network.networks`:
+
+```nix
+# CORRECT
+networking.useNetworkd = true;
+systemd.network.networks."10-lan" = { ... };
+
+# WRONG — conflicts with networkd
+networking.interfaces."eno1".ipv4.addresses = [ ... ];
+```
+
+---
+
+## #14 nixos-facter is alpha software
+
+nixos-facter auto-generates hardware configs from live hardware. Useful for
+discovery, but its output format is unstable. Do not commit generated facter
+configs as-is — review and hand-edit them first.
