@@ -4,7 +4,6 @@
 # https://github.com/gethomepage/homepage
 #
 # Config lives in a ConfigMap so everything is GitOps-managed.
-# TODO: fill in your actual domains in the services config below.
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1
@@ -64,11 +63,14 @@ metadata:
   name: homepage
 rules:
   - apiGroups: [""]
-    resources: [services, endpoints, pods]
-    verbs: [get, list]
+    resources: [nodes, namespaces, pods, services, endpoints]
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [deployments, replicasets, statefulsets, daemonsets]
+    verbs: [get, list, watch]
   - apiGroups: [extensions, networking.k8s.io]
     resources: [ingresses]
-    verbs: [get, list]
+    verbs: [get, list, watch]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -111,9 +113,9 @@ spec:
   tls:
     - secretName: homepage-tls
       hosts:
-        - home.daviddelporte.com  # TODO
+        - home.daviddelporte.com
   rules:
-    - host: home.daviddelporte.com  # TODO
+    - host: home.daviddelporte.com
       http:
         paths:
           - path: /
