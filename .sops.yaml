@@ -1,15 +1,18 @@
 # ---------------------------------------------------------------------------
 # sops configuration — age encryption
 #
-# Workstation key is active. Node keys worden ingevuld na eerste boot:
-#   ssh root@10.0.20.1X "cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age"
+# Workstation key is active.
+# Node keys worden toegevoegd NA eerste node-deploy (Fase 4):
+#   ssh root@10.0.20.1X 'nix-shell -p ssh-to-age --run "ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub"'
+# Dan: sops updatekeys secrets/secrets.yaml
 # ---------------------------------------------------------------------------
 
 keys:
-  - &workstation age15xdlwmrsvspelf6uxfu3jkpxl552zrcrq84r8afd5wphl85svs3qutyy7z
-  - &node1 age1PLACEHOLDER_NODE1
-  - &node2 age1PLACEHOLDER_NODE2
-  - &node3 age1PLACEHOLDER_NODE3
+  - &workstation age1m483x92dqmkazqx8xu7xc8waw3uh23a890uv4tcj6d4xafg98alqq0vqeh
+  # Node keys — invullen na eerste deploy:
+  # - &node1 age1PLACEHOLDER_NODE1
+  # - &node2 age1PLACEHOLDER_NODE2
+  # - &node3 age1PLACEHOLDER_NODE3
 
 creation_rules:
   # Central NixOS secrets (k3s token, app passwords — source of truth)
@@ -17,15 +20,9 @@ creation_rules:
     key_groups:
       - age:
         - *workstation
-        - *node1
-        - *node2
-        - *node3
 
   # Kubernetes Secret manifests per app (encrypt before committing)
   - path_regex: apps/.*/manifests/secret\.yaml$
     key_groups:
       - age:
         - *workstation
-        - *node1
-        - *node2
-        - *node3
