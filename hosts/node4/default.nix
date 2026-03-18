@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 # ---------------------------------------------------------------------------
-# Node 4 — K3s server join (expansion control-plane slot) — 10.0.20.14
+# Node 4 — K3s server join (expansion control-plane slot) — 10.0.20.15
 # ---------------------------------------------------------------------------
 
 {
@@ -9,14 +9,14 @@
 
   homelab.node = {
     mac = "TODO_REPLACE_WITH_MAC";
-    ip  = "10.0.20.14/24";
+    ip  = "10.0.20.15/24";
   };
 
   services.k3s.extraFlags = lib.mkForce (toString [
     "--disable=traefik"
     "--disable=servicelb"
     "--disable=local-storage"
-    "--node-ip=10.0.20.14"
+    "--node-ip=10.0.20.15"
     "--kubelet-arg=cgroup-driver=systemd"
   ]);
 

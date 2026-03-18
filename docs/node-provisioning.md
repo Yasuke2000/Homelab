@@ -32,12 +32,13 @@ Boot installer (DHCP) → smart-deploy.sh → discovers MAC + disk
 | node1  | 10.0.20.11  | etcd leader          |
 | node2  | 10.0.20.12  | control-plane        |
 | node3  | 10.0.20.13  | control-plane        |
-| node4  | 10.0.20.14  | expansion slot       |
-| node5  | 10.0.20.15  | expansion slot       |
-| node6  | 10.0.20.16  | expansion slot       |
-| node7  | 10.0.20.17  | dedicated worker     |
-| node8  | 10.0.20.18  | dedicated worker     |
-| node9  | 10.0.20.19  | dedicated worker     |
+| nas    | 10.0.20.14  | TrueNAS NFS          |
+| node4  | 10.0.20.15  | expansion slot       |
+| node5  | 10.0.20.16  | expansion slot       |
+| node6  | 10.0.20.17  | expansion slot       |
+| node7  | 10.0.20.18  | dedicated worker     |
+| node8  | 10.0.20.19  | dedicated worker     |
+| node9  | 10.0.20.20  | dedicated worker     |
 
 ## USB preparation (Ventoy)
 
@@ -204,5 +205,5 @@ On failure, the failed node is automatically rolled back.
 
 1. Choose a slot (node4-9) from `hosts/`
 2. Pick the appropriate module: `k3s-server-join.nix` or `k3s-worker.nix`
-3. Assign an IP from 10.0.20.14-19
+3. Assign an IP from 10.0.20.15-20
 4. Run `smart-deploy.sh` — it handles the rest

@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 # ---------------------------------------------------------------------------
-# Node 9 — K3s worker (dedicated agent, no etcd) — 10.0.20.19
+# Node 9 — K3s worker (dedicated agent, no etcd) — 10.0.20.20
 # ---------------------------------------------------------------------------
 
 {
@@ -9,14 +9,14 @@
 
   homelab.node = {
     mac = "TODO_REPLACE_WITH_MAC";
-    ip  = "10.0.20.19/24";
+    ip  = "10.0.20.20/24";
   };
 
   # Worker: override node-ip (k3s-worker.nix sets the base extraFlags)
   services.k3s.extraFlags = lib.mkForce (toString [
     "--kubelet-arg=cgroup-driver=systemd"
     "--node-label=role=worker"
-    "--node-ip=10.0.20.19"
+    "--node-ip=10.0.20.20"
   ]);
 
   homelab.node.disk = "TODO_REPLACE_WITH_DISK";
