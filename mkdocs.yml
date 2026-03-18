@@ -24,14 +24,18 @@ theme:
 
 nav:
   - Home: index.md
+  - Hardware & Cost: hardware.md
   - Deployment:
       - Deployment Guide: deployment-guide.md
       - Node Provisioning: node-provisioning.md
+      - Next Steps Checklist: next-steps.md
       - Staging to Production: staging-to-prod.md
-  - Reference:
+  - Operations:
+      - Alerting (Discord): alerting.md
       - Cert Manager TLS: cert-manager-tls.md
-      - Gotchas: gotchas.md
       - Recovery: recovery.md
+  - Reference:
+      - Gotchas: gotchas.md
       - Project Summary: project-summary.md
 
 markdown_extensions:

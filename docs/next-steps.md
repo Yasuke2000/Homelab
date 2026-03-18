@@ -64,12 +64,14 @@ Each item is a single, concrete action you can complete independently.
   sops secrets/secrets.yaml
   # sops opens $EDITOR; fill in real values, save and quit — file is auto-encrypted
   ```
-  > **Required secrets to fill:**  
-  > `k3s.token` — generate with: `openssl rand -hex 32`  
-  > `vaultwarden.adminToken` — generate with: `openssl rand -base64 48`  
-  > `grafana.adminPassword` — strong password  
-  > `renovate.githubToken` — GitHub PAT with `repo` + `read:packages` scopes  
+  > **Required secrets to fill:**
+  > `k3s.token` — generate with: `openssl rand -hex 32`
+  > `vaultwarden.adminToken` — generate with: `openssl rand -base64 48`
+  > `grafana.adminPassword` — strong password
+  > `cloudflare.apiToken` — Cloudflare API token (DNS-01 cert-manager)
   > All app DB passwords — generate with: `openssl rand -hex 16`
+  >
+  > **Note:** Renovate runs as a GitHub App — no PAT needed.
 
 - [ ] **1.5** Verify the encrypted file looks correct (all values show `ENC[...`):
   ```bash

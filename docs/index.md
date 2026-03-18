@@ -4,6 +4,10 @@ A production-grade bare-metal infrastructure project built for learning, self-ho
 and demonstrating real-world engineering skills. Every node, every certificate, every
 secret, and every deployment is managed entirely through code.
 
+**Hardware**: 4× HP EliteDesk 800 G4 Mini — refurbished, silent, ~15–20W each
+**Running cost**: ~€17/month (electricity + domain)
+**Status**: Pre-deployment — all code ready, waiting on physical hardware
+
 ---
 
 ## Architecture
@@ -33,7 +37,7 @@ graph TB
                 Vault["Vaultwarden"]
                 Ghost["Ghost"]
                 Jelly["Jellyfin"]
-                More["+ 8 more apps"]
+                More["+ 9 more apps"]
             end
 
             ArgoCD["ArgoCD v3\nGitOps Controller"] -.->|"git push → sync"| Apps
@@ -74,22 +78,38 @@ graph TB
 
 | App | Subdomain | Purpose |
 |---|---|---|
+| Ghost | daviddelporte.com | Personal blog / website |
 | Vaultwarden | vault.daviddelporte.com | Password manager (Bitwarden-compatible) |
-| Ghost | daviddelporte.com | Personal blog |
 | Jellyfin | jellyfin.daviddelporte.com | Media server |
 | Jellyseerr | requests.daviddelporte.com | Media request management |
 | RoMM | romm.daviddelporte.com | ROM / game library manager |
 | Pelican | games.daviddelporte.com | Game server management |
 | Actual Budget | budget.daviddelporte.com | Personal finance |
-| Silverbullet | notes.daviddelporte.com | Personal knowledge base |
+| SilverBullet | notes.daviddelporte.com | Personal knowledge base |
 | Shelf | shelf.daviddelporte.com | Book tracking |
-| Homepage | home.daviddelporte.com | Self-hosted dashboard |
-| Uptime Kuma | status.daviddelporte.com | Uptime monitoring and status page |
-| Grafana | grafana.daviddelporte.com | Metrics and alerting |
+| Homepage | home.daviddelporte.com | Self-hosted dashboard (all apps in one place) |
+| Uptime Kuma | status.daviddelporte.com | Uptime monitoring and public status page |
+| Grafana | grafana.daviddelporte.com | Metrics, dashboards, and alerting |
+| Longhorn UI | longhorn.daviddelporte.com | Storage management |
+| ArgoCD | argocd.daviddelporte.com | GitOps deployment management |
 
 ---
 
-## Engineering highlights
+## Cost at a glance
+
+| | |
+|--|--|
+| **Hardware** | 4× HP EliteDesk 800 G4 Mini (refurbished) + storage |
+| **Monthly running cost** | ~€17 (electricity + domain) |
+| **Software** | 100% open source — €0 |
+| **Cloud equivalent** | €80–200/month for the same workload |
+| **Break-even vs cloud** | 6–12 months |
+
+See [Hardware & Cost](hardware.md) for the full breakdown.
+
+---
+
+## Engineering Highlights
 
 ### Fully declarative infrastructure
 
@@ -131,7 +151,7 @@ node is `Ready` before continuing, and rolls back automatically on failure.
 
 | | Bare-metal homelab | Equivalent cloud |
 |---|---|---|
-| **Monthly cost** | ~€5 (electricity) | ~€80–150 |
+| **Monthly cost** | ~€17 (electricity) | €80–200 |
 | **Data sovereignty** | Full — nothing leaves home | Vendor-controlled |
 | **Learning depth** | Hardware, OS, networking, K8s | Managed services only |
 | **Vendor lock-in** | None | High |
@@ -142,7 +162,23 @@ not a managed service that abstracts all the interesting problems away.
 
 ---
 
-## CI / CD pipeline
+## Documentation
+
+| Guide | What it covers |
+|---|---|
+| [Deployment Guide](deployment-guide.md) | Boot to fully running cluster — step by step |
+| [Node Provisioning](node-provisioning.md) | How smart-deploy.sh works, Ventoy USB setup |
+| [Hardware & Cost](hardware.md) | Full bill of materials, running costs, sourcing guide |
+| [Cert Manager TLS](cert-manager-tls.md) | DNS-01 setup, staging vs production, troubleshooting |
+| [Alerting](alerting.md) | Alertmanager Discord webhook setup |
+| [Gotchas](gotchas.md) | 14 hard-won lessons from building this |
+| [Recovery](recovery.md) | Lost age key, corrupted etcd, full cluster rebuild |
+| [Staging to Production](staging-to-prod.md) | TLS certificate promotion checklist |
+| [Next Steps](next-steps.md) | Concrete deployment checklist with copy-paste commands |
+
+---
+
+## CI / CD Pipeline
 
 Every push to `master` runs 5 automated checks:
 
