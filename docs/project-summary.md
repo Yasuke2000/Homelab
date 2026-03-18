@@ -287,21 +287,20 @@ Elke push/PR op master triggert 5 checks:
 - [x] Alle ingresses op letsencrypt-staging (veilig voor eerste deploy)
 - [x] Alerting rules aangemaakt (Prometheus)
 - [x] Documentatie aangemaakt
+- [x] SSH keys toegevoegd (PC + telefoon) in common/default.nix
+- [x] Workstation age key gegenereerd
+- [x] .sops.yaml geconfigureerd met workstation age key
 
-### Fase 1 — Cloudflare API token — TODO (nu al doen)
+**Openstaand na hardware-installatie:**
+- [ ] Node1 age key invullen in .sops.yaml (na nixos-anywhere deploy)
+- [ ] Node2 age key invullen in .sops.yaml (na nixos-anywhere deploy)
+- [ ] Node3 age key invullen in .sops.yaml (na nixos-anywhere deploy)
+
+### Fase 1 — Cloudflare API token + Secrets encrypten — TODO (nu al doen)
 - [ ] Cloudflare dashboard → My Profile → API Tokens → Create Token
-  - Template: "Edit zone DNS"
-  - Zone Resources: daviddelporte.com
-- [ ] Token invullen in `secrets/secrets.yaml` onder `cloudflare.apiToken`
-
-### Fase 2 — SSH key + Age keys — TODO (nu al doen, geen hardware nodig)
-- [ ] SSH key genereren (als nog niet gedaan):
-  `ssh-keygen -t ed25519 -C "homelab-admin"`
-- [ ] SSH public key toevoegen aan `hosts/*/default.nix`
-- [ ] Age key genereren: `bash scripts/setup-age-keys.sh`
-- [ ] Workstation age pubkey invullen in `.sops.yaml`
-- [ ] `secrets/secrets.yaml` invullen met alle waarden
-- [ ] `sops secrets/secrets.yaml` → encrypten
+  - Template: "Edit zone DNS" → Zone: daviddelporte.com
+- [ ] `secrets/secrets.yaml` invullen: alle REPLACE_WITH_ waarden + Cloudflare token
+- [ ] `sops encrypt secrets/secrets.yaml` → encrypten met workstation age key
 
 ### Fase 3 — Hardware inventaris — OPEN (wacht op nodes)
 - [ ] Boot elke node van NixOS minimal ISO
@@ -411,6 +410,9 @@ Elke push/PR op master triggert 5 checks:
 ## 14. Recente wijzigingen
 
 **2026-03-18:**
+- SSH keys (PC + telefoon) toegevoegd aan `common/default.nix`
+- `PermitRootLogin` gecorrigeerd naar `prohibit-password` (vereist voor nixos-rebuild --target-host)
+- `.sops.yaml` geconfigureerd met workstation age key; node placeholders wachten op hardware
 - Domein ingesteld: `daviddelporte.com` (alle manifests bijgewerkt)
 - cert-manager omgezet van HTTP-01 naar DNS-01 via Cloudflare
 - Wildcard cert toegevoegd: `*.daviddelporte.com`

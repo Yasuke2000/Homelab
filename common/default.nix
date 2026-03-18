@@ -53,10 +53,27 @@
 
     settings = {
       PasswordAuthentication = false;   # key-only login
-      PermitRootLogin        = "no";
+      PermitRootLogin        = "prohibit-password";  # keys only, needed for nixos-rebuild --target-host
       X11Forwarding          = false;
     };
   };
+
+  # ---------------------------------------------------------------------------
+  # Users — admin + root SSH keys (PC and phone)
+  # ---------------------------------------------------------------------------
+  users.users.admin = {
+    isNormalUser = true;
+    extraGroups  = [ "wheel" ];
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGBNjGpptYwOI0mHX7z1LeUoOFVRWQxw3KvyY0wt1YHB homelab-admin-pc"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaLz9nbBy/IjEbnpBipuGWGKtoFEkcDrVX8NrwYX291 homelab-admin-phone"
+    ];
+  };
+
+  users.users.root.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGBNjGpptYwOI0mHX7z1LeUoOFVRWQxw3KvyY0wt1YHB homelab-admin-pc"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaLz9nbBy/IjEbnpBipuGWGKtoFEkcDrVX8NrwYX291 homelab-admin-phone"
+  ];
 
   # ---------------------------------------------------------------------------
   # Base packages present on every node

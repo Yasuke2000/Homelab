@@ -1,39 +1,31 @@
 # ---------------------------------------------------------------------------
-# sops configuration — age encryption for all secrets
+# sops configuration — age encryption
 #
-# SETUP STEPS:
-#   1. Generate age key on your workstation:
-#        age-keygen -o ~/.config/sops/age/keys.txt
-#
-#   2. Get your public key:
-#        age-keygen -y ~/.config/sops/age/keys.txt
-#        → prints: age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-#
-#   3. For each NixOS node, generate a host key during nixos-anywhere deploy:
-#        The key is derived from the SSH host key by nixos-anywhere automatically
-#        OR generate manually: age-keygen -o /var/lib/sops-nix/key.txt
-#        Then get its pubkey: age-keygen -y /var/lib/sops-nix/key.txt
-#
-#   4. Replace all TODO pubkeys below with your actual keys
-#
-#   5. Create/edit secrets: sops secrets/secrets.yaml
+# Workstation key is active. Node keys worden ingevuld na eerste boot:
+#   ssh root@10.0.20.1X "cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age"
 # ---------------------------------------------------------------------------
 
-# Shared age recipients (workstation + all 3 nodes)
-# Replace these placeholders with your actual public keys.
-x-age-recipients: &age-recipients
-  - age1XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  # workstation
-  - age1YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY  # node1
-  - age1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ  # node2
-  - age1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  # node3
+keys:
+  - &workstation age15xdlwmrsvspelf6uxfu3jkpxl552zrcrq84r8afd5wphl85svs3qutyy7z
+  - &node1 age1PLACEHOLDER_NODE1
+  - &node2 age1PLACEHOLDER_NODE2
+  - &node3 age1PLACEHOLDER_NODE3
 
 creation_rules:
   # Central NixOS secrets (k3s token, app passwords — source of truth)
   - path_regex: secrets/.*\.yaml$
     key_groups:
-      - age: *age-recipients
+      - age:
+        - *workstation
+        - *node1
+        - *node2
+        - *node3
 
   # Kubernetes Secret manifests per app (encrypt before committing)
   - path_regex: apps/.*/manifests/secret\.yaml$
     key_groups:
-      - age: *age-recipients
+      - age:
+        - *workstation
+        - *node1
+        - *node2
+        - *node3
