@@ -28,6 +28,9 @@ spec:
       containers:
         - name: homepage
           image: ghcr.io/gethomepage/homepage:v0.9.10
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: "home.daviddelporte.com"
           ports:
             - containerPort: 3000
               name: http
