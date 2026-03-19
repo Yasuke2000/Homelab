@@ -1,12 +1,11 @@
 # David's Homelab
 
-A production-grade bare-metal infrastructure project built for learning, self-hosting,
-and demonstrating real-world engineering skills. Every node, every certificate, every
-secret, and every deployment is managed entirely through code.
+A production-grade bare-metal infrastructure project — fully declarative, GitOps-driven,
+and secured by design. Every node, every certificate, every secret, and every deployment
+is managed entirely through code.
 
-**Cluster**: 3-node K3s HA (embedded etcd) + TrueNAS NAS — 4 mini PCs total
+**Cluster**: 3-node K3s HA (embedded etcd) + TrueNAS NAS
 **Running cost**: ~€17/month (electricity + domain)
-**Status**: Pre-deployment — all code ready, waiting on physical hardware
 
 ---
 
@@ -95,20 +94,6 @@ graph TB
 
 ---
 
-## Cost at a glance
-
-| | |
-|--|--|
-| **Hardware** | 4× refurbished mini PCs + storage drives |
-| **Monthly running cost** | ~€17 (electricity + domain) |
-| **Software** | 100% open source — €0 |
-| **Cloud equivalent** | €80–200/month for the same workload |
-| **Break-even vs cloud** | 6–12 months |
-
-See [Hardware & Cost](hardware.md) for the full breakdown.
-
----
-
 ## Engineering Highlights
 
 ### Fully declarative infrastructure
@@ -147,18 +132,49 @@ node is `Ready` before continuing, and rolls back automatically on failure.
 
 ---
 
-## Why bare-metal over cloud?
+## Skills Demonstrated
 
-| | Bare-metal homelab | Equivalent cloud |
-|---|---|---|
-| **Monthly cost** | ~€17 (electricity) | €80–200 |
-| **Data sovereignty** | Full — nothing leaves home | Vendor-controlled |
+| Area | What this project covers |
+| ---- | ------------------------ |
+| **Linux / NixOS** | Declarative OS config, flakes, custom modules, systemd-networkd |
+| **Kubernetes** | K3s HA cluster, RBAC, CRDs, resource management, rolling upgrades |
+| **GitOps** | ArgoCD sync-waves, app-of-apps pattern, self-healing reconciliation |
+| **Networking** | VLAN segmentation, DNS (Cloudflare), reverse proxy (Traefik), MetalLB L2 |
+| **Security** | sops + age encryption, zero-trust secrets, automated secret rotation per node |
+| **TLS / PKI** | cert-manager DNS-01 challenge, wildcard certificates, staging-to-prod promotion |
+| **Storage** | Longhorn distributed block storage, NFS integration, automated snapshots + backups |
+| **Monitoring** | Prometheus + Grafana + Alertmanager, custom alert routing |
+| **CI/CD** | GitHub Actions (5 checks), yamllint, kubeconform, secret scanning, line-ending enforcement |
+| **IaC** | Nix flakes, disko (declarative disk partitioning), nixos-anywhere remote deployment |
+| **Automation** | Bash provisioning scripts, hardware auto-discovery, zero-touch node onboarding |
+
+---
+
+## Cost Efficiency
+
+| Metric | Value |
+| ------ | ----- |
+| **Monthly running cost** | ~€17 (electricity + domain) |
+| **Software licensing** | €0 — 100% open source |
+| **Cloud equivalent** | €80–200/month for the same workload |
+| **Break-even vs cloud** | 6–12 months |
+
+See [Hardware & Cost](hardware.md) for the full breakdown.
+
+---
+
+## Why bare-metal?
+
+This project mirrors production infrastructure with real failure modes, real
+networking constraints, and real operational runbooks — not a managed service
+that abstracts the interesting problems away.
+
+| Metric | Bare-metal | Cloud equivalent |
+| ------ | ---------- | ---------------- |
+| **Monthly cost** | ~€17 | €80–200 |
+| **Data sovereignty** | Full — nothing leaves the network | Vendor-controlled |
 | **Learning depth** | Hardware, OS, networking, K8s | Managed services only |
 | **Vendor lock-in** | None | High |
-
-The goal was to build something that mirrors production infrastructure — with
-real failure modes, real networking constraints, and real operational runbooks —
-not a managed service that abstracts all the interesting problems away.
 
 ---
 

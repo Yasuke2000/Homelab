@@ -35,7 +35,7 @@ nix develop
 
 ## Phase 1 — Provision nodes
 
-Boot each HP EliteDesk from the Ventoy USB (see [Node Provisioning](node-provisioning.md) for USB setup).
+Boot each node from the Ventoy USB (see [Node Provisioning](node-provisioning.md) for USB setup).
 
 Once the NixOS installer is running and you have the DHCP IP, run:
 

@@ -6,7 +6,7 @@
 
 ## 1. Doel van het project
 
-Sovereign bare-metal homelab op 4 HP EliteDesk 800 G4 mini-PC's:
+Sovereign bare-metal homelab op 4 mini-PC's:
 - 3 nodes draaien een **K3s HA Kubernetes cluster** (embedded etcd, 3 control-plane nodes)
 - 1 node draait **TrueNAS SCALE** als NAS/NFS storage server
 - Alles wordt beheerd via **GitOps (ArgoCD v3)** — elke wijziging gaat via git push
@@ -17,19 +17,17 @@ Sovereign bare-metal homelab op 4 HP EliteDesk 800 G4 mini-PC's:
 
 ## 2. Hardware
 
-| Node   | Hardware                    | IP           | Rol                              |
-|--------|-----------------------------|--------------|----------------------------------|
-| node1  | HP EliteDesk 800 G4 Mini    | 10.0.20.11   | K3s cluster-init (etcd leader)   |
-| node2  | HP EliteDesk 800 G4 Mini    | 10.0.20.12   | K3s server join                  |
-| node3  | HP EliteDesk 800 G4 Mini    | 10.0.20.13   | K3s server join                  |
-| nas    | HP EliteDesk 800 G4 Mini    | 10.0.20.14   | TrueNAS SCALE (NFS storage)      |
-| gw     | UniFi gateway               | 10.0.20.1    | Router/DNS voor VLAN 20          |
+| Node   | IP           | Rol                              |
+|--------|--------------|----------------------------------|
+| node1  | 10.0.20.11   | K3s cluster-init (etcd leader)   |
+| node2  | 10.0.20.12   | K3s server join                  |
+| node3  | 10.0.20.13   | K3s server join                  |
+| nas    | 10.0.20.14   | TrueNAS SCALE (NFS storage)      |
+| gw     | 10.0.20.1    | Router/DNS voor VLAN 20          |
 
 - **VLAN**: 10.0.20.0/24 (dedicated homelab VLAN)
 - **MetalLB LoadBalancer IP range**: 10.0.20.100–10.0.20.200
 - **Traefik LoadBalancer IP**: 10.0.20.100 (vaste toewijzing)
-
-**Status hardware**: Nodes zijn nog NIET fysiek beschikbaar. Repo is volledig klaar voor deploy.
 
 ---
 
@@ -162,8 +160,8 @@ Elke push op master triggert 5 checks — alle slagen:
 ### ⏳ WACHT OP HARDWARE (issues #14–#18)
 
 **Issue #14 — Fase 2 (VOLGENDE STAP):**
-- [ ] Boot elke HP EliteDesk van NixOS minimal ISO
-- [ ] Boot elke HP EliteDesk van NixOS minimal ISO (Ventoy USB)
+
+- [ ] Boot elke node van NixOS minimal ISO (Ventoy USB)
 - [ ] Run `bash scripts/smart-deploy.sh <temp-ip> nodeX server-init/join`
 - [ ] Script detecteert automatisch MAC + disk + genereert age keys
 

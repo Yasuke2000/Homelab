@@ -67,16 +67,17 @@ Verify the SHA-256 hash from https://channels.nixos.org/nixos-25.05/ before boot
 
 ### Boot from Ventoy
 
-1. Insert USB, boot node (F9 or F12 for boot menu on HP EliteDesk)
+1. Insert USB, boot node (F9 or F12 for boot menu — check your BIOS)
 2. Select the USB drive in BIOS boot menu
 3. Ventoy menu appears → select `nixos-minimal-25.05-x86_64-linux.iso`
 4. At NixOS boot prompt, wait for `nixos@nixos:~$`
 5. Note the DHCP IP: `ip addr show | grep 'inet '`
 6. Verify SSH works: `ssh root@<dhcp-ip>` (no password needed on NixOS installer)
 
-### HP EliteDesk 800 G4 BIOS settings
+### Recommended BIOS settings
 
-Before first boot, verify these BIOS settings (F10 at startup):
+Before first boot, verify these BIOS settings:
+
 - Secure Boot: **Disabled** (NixOS installer won't boot with Secure Boot)
 - Boot Mode: **UEFI** (not Legacy/CSM)
 - Wake on LAN: **Enabled** (optional, useful for remote management)
