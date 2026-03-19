@@ -29,8 +29,15 @@ graph TD
             Longhorn[Longhorn — Storage]
         end
 
-        Traefik -->|route| Apps
-        ArgoCD -.->|sync| Apps
+        subgraph CP[Control Plane × 3]
+            direction LR
+            N1[node1 — etcd leader] --- N2[node2] --- N3[node3]
+        end
+
+        Traefik --> CP
+        ArgoCD -.->|sync| CP
+
+        CP --> Apps
         Longhorn -.->|volumes| Apps
 
         subgraph Apps[Self-hosted Applications]
@@ -40,13 +47,6 @@ graph TD
             Jelly[Jellyfin]
             More[+ 11 more]
         end
-
-        subgraph CP[Control Plane × 3]
-            direction LR
-            N1[node1 — etcd leader] --- N2[node2] --- N3[node3]
-        end
-
-        Apps --> CP
     end
 
     NAS[TrueNAS — NFS Backup] -.->|backup target| Longhorn
