@@ -14,42 +14,42 @@ is managed entirely through code.
 ```mermaid
 graph TD
     User((User)) -->|HTTPS| CF[Cloudflare DNS + Proxy]
+
     CF -->|443| Traefik
 
-    subgraph Git[Source of Truth]
-        Repo[(GitHub — NixOS configs, K8s manifests, encrypted secrets)]
-    end
+    Repo[(GitHub — NixOS configs · K8s manifests · encrypted secrets)] -->|reconcile| ArgoCD
 
-    Repo -->|reconcile| ArgoCD
+    subgraph Cluster[K3s HA Cluster — embedded etcd]
+        direction TB
 
-    subgraph Home[Home Network — VLAN 20 · 10.0.20.0/24]
-        subgraph Cluster[K3s HA Cluster — embedded etcd]
-            Traefik[Traefik v3 — Ingress Controller]
+        subgraph Infra[Infrastructure Layer]
+            direction LR
+            Traefik[Traefik v3 — Ingress]
             ArgoCD[ArgoCD v3 — GitOps]
-            Longhorn[Longhorn — Distributed Storage]
-
-            Traefik --> Apps
-            ArgoCD -.->|sync| Apps
-            Longhorn -.->|volumes| Apps
-
-            subgraph Apps[Self-hosted Applications]
-                direction LR
-                Vault[Vaultwarden]
-                Ghost[Ghost]
-                Jelly[Jellyfin]
-                More[+ 11 more]
-            end
-
-            subgraph CP[Control Plane × 3]
-                direction LR
-                N1[node1 — etcd leader]
-                N2[node2]
-                N3[node3]
-            end
+            Longhorn[Longhorn — Storage]
         end
 
-        NAS[TrueNAS — NFS Storage] -.->|backup target| Longhorn
+        Traefik -->|route| Apps
+        ArgoCD -.->|sync| Apps
+        Longhorn -.->|volumes| Apps
+
+        subgraph Apps[Self-hosted Applications]
+            direction LR
+            Vault[Vaultwarden]
+            Ghost[Ghost]
+            Jelly[Jellyfin]
+            More[+ 11 more]
+        end
+
+        subgraph CP[Control Plane × 3]
+            direction LR
+            N1[node1 — etcd leader] --- N2[node2] --- N3[node3]
+        end
+
+        Apps --> CP
     end
+
+    NAS[TrueNAS — NFS Backup] -.->|backup target| Longhorn
 ```
 
 ---
