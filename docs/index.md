@@ -4,7 +4,7 @@ A production-grade bare-metal infrastructure project built for learning, self-ho
 and demonstrating real-world engineering skills. Every node, every certificate, every
 secret, and every deployment is managed entirely through code.
 
-**Hardware**: 4× HP EliteDesk 800 G4 Mini — refurbished, silent, ~15–20W each
+**Cluster**: 3-node K3s HA (embedded etcd) + TrueNAS NAS — 4 mini PCs total
 **Running cost**: ~€17/month (electricity + domain)
 **Status**: Pre-deployment — all code ready, waiting on physical hardware
 
@@ -99,7 +99,7 @@ graph TB
 
 | | |
 |--|--|
-| **Hardware** | 4× HP EliteDesk 800 G4 Mini (refurbished) + storage |
+| **Hardware** | 4× refurbished mini PCs + storage drives |
 | **Monthly running cost** | ~€17 (electricity + domain) |
 | **Software** | 100% open source — €0 |
 | **Cloud equivalent** | €80–200/month for the same workload |

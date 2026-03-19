@@ -16,10 +16,7 @@ Each item is a single, concrete action you can complete independently.
 - [ ] **0.2** Fork / push this repo to your own GitHub account and update the repo URL:
   ```bash
   # Replace every occurrence of https://github.com/Yasuke2000/Homelab.git
-  # with your actual repo URL in:
-  #   apps/app-of-apps.yaml
-  #   apps/monitoring/uptime-kuma.yaml
-  #   apps/monitoring/alerting.yaml
+  # with your actual repo URL in all Application manifests:
   grep -r "Yasuke2000/Homelab" apps/ --include="*.yaml" -l
   ```
 
@@ -83,7 +80,11 @@ Each item is a single, concrete action you can complete independently.
 
 ## Phase 2 — Hardware Inventory
 
-- [ ] **2.1** Boot each HP EliteDesk from the NixOS minimal ISO and collect hardware info:
+> **Note:** `smart-deploy.sh` (used in Phase 3 of the [Deployment Guide](deployment-guide.md))
+> automates MAC/disk discovery, NixOS config patching, and age key generation. This manual
+> phase is the alternative if you prefer to collect hardware info separately before deploying.
+
+- [ ] **2.1** Boot each node from the NixOS minimal ISO and collect hardware info:
   ```bash
   bash scripts/collect-hardware-info.sh 10.0.20.11  # repeat for .12 and .13
   ```
@@ -135,8 +136,11 @@ Each item is a single, concrete action you can complete independently.
 
 - [ ] **3.2** Deploy node1 (cluster-init, etcd leader):
   ```bash
+  # If using smart-deploy.sh (recommended — auto-discovers hardware):
+  bash scripts/smart-deploy.sh <dhcp-ip> node1 server-init
+
+  # Or if you completed Phase 2 manually:
   bash scripts/deploy-node.sh node1
-  # Internally runs: nixos-anywhere --flake .#node1 root@10.0.20.11
   ```
   Wait for node1 to reboot and the K3s API to be reachable:
   ```bash
@@ -152,12 +156,12 @@ Each item is a single, concrete action you can complete independently.
 
 - [ ] **3.4** Deploy node2:
   ```bash
-  bash scripts/deploy-node.sh node2
+  bash scripts/smart-deploy.sh <dhcp-ip> node2 server-join
   ```
 
 - [ ] **3.5** Deploy node3:
   ```bash
-  bash scripts/deploy-node.sh node3
+  bash scripts/smart-deploy.sh <dhcp-ip> node3 server-join
   ```
 
 - [ ] **3.6** Verify all 3 nodes are Ready and etcd is healthy:
