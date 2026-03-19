@@ -12,46 +12,44 @@ is managed entirely through code.
 ## Architecture
 
 ```mermaid
-graph TB
-    subgraph Internet["Internet"]
-        User((User)) -->|HTTPS| CF["Cloudflare\nDNS + Proxy"]
-    end
+graph TD
+    User((User)) -->|HTTPS| CF[Cloudflare DNS + Proxy]
+    CF -->|443| Traefik
 
-    subgraph Home["Home Network — VLAN 20  ·  10.0.20.0/24"]
-        CF -->|443| Traefik["Traefik v3\nIngress Controller\n10.0.20.100"]
-
-        subgraph Cluster["K3s HA Cluster — embedded etcd"]
-            Traefik --> Apps
-
-            subgraph CP["Control Plane  ×3"]
-                N1["node1  ·  10.0.20.11\netcd leader"]
-                N2["node2  ·  10.0.20.12"]
-                N3["node3  ·  10.0.20.13"]
-                N1 --- N2
-                N2 --- N3
-            end
-
-            subgraph Apps["Self-hosted Applications"]
-                direction LR
-                Vault["Vaultwarden"]
-                Ghost["Ghost"]
-                Jelly["Jellyfin"]
-                More["+ 9 more apps"]
-            end
-
-            ArgoCD["ArgoCD v3\nGitOps Controller"] -.->|"git push → sync"| Apps
-            Longhorn["Longhorn\nDistributed Storage"] --> Apps
-        end
-
-        NAS["TrueNAS SCALE\n10.0.20.14\nNFS storage"]
-        NAS --> Longhorn
-    end
-
-    subgraph Git["Source of Truth"]
-        Repo[("GitHub\nNixOS configs\nK8s manifests\nEncrypted secrets")]
+    subgraph Git[Source of Truth]
+        Repo[(GitHub — NixOS configs, K8s manifests, encrypted secrets)]
     end
 
     Repo -->|reconcile| ArgoCD
+
+    subgraph Home[Home Network — VLAN 20 · 10.0.20.0/24]
+        subgraph Cluster[K3s HA Cluster — embedded etcd]
+            Traefik[Traefik v3 — Ingress Controller]
+            ArgoCD[ArgoCD v3 — GitOps]
+            Longhorn[Longhorn — Distributed Storage]
+
+            Traefik --> Apps
+            ArgoCD -.->|sync| Apps
+            Longhorn -.->|volumes| Apps
+
+            subgraph Apps[Self-hosted Applications]
+                direction LR
+                Vault[Vaultwarden]
+                Ghost[Ghost]
+                Jelly[Jellyfin]
+                More[+ 11 more]
+            end
+
+            subgraph CP[Control Plane × 3]
+                direction LR
+                N1[node1 — etcd leader]
+                N2[node2]
+                N3[node3]
+            end
+        end
+
+        NAS[TrueNAS — NFS Storage] -.->|backup target| Longhorn
+    end
 ```
 
 ---
