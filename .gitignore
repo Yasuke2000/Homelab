@@ -53,3 +53,6 @@ Chart.lock
 # Local overrides
 *.local
 local.*
+
+# Handoff prompt (contains Claude references — local only)
+HANDOFF.md
