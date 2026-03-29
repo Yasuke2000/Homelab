@@ -1,8 +1,8 @@
 # Homelab — Project Context
 
 ## Project summary
-Sovereign bare-metal NixOS homelab. Three HP EliteDesk 800 G4 mini PCs running
-K3s HA cluster (embedded etcd). One HP EliteDesk running TrueNAS SCALE (NFS storage).
+Sovereign bare-metal NixOS homelab. Three HP mini PCs (ProDesk 400 G7 SFF + 2x EliteDesk 800) running
+K3s HA cluster (embedded etcd). Synology DS918+ NAS (NFS storage).
 GitOps via ArgoCD v3. All secrets via sops-nix + age.
 
 ## Current deployment status (updated 2026-03-18)
@@ -45,7 +45,7 @@ C:\Users\DavidD\AppData\Local\Temp\sops.exe --encrypt --config /dev/null `
 | node1  | 10.0.20.11  | K3s cluster-init (etcd leader)|
 | node2  | 10.0.20.12  | K3s server join               |
 | node3  | 10.0.20.13  | K3s server join               |
-| nas    | 10.0.20.14  | TrueNAS SCALE (NFS)           |
+| nas    | 10.0.20.14  | Synology DS918+ (NFS)           |
 | gw     | 10.0.20.1   | UniFi gateway                 |
 
 ## Software versions (pinned)
