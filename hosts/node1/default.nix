@@ -12,12 +12,12 @@
   #   ip link show | grep -A1 "state UP" | grep "link/ether" | awk "{print $2}"
   # Of automatisch via: bash scripts/smart-deploy.sh <temp-ip> node1 server
   homelab.node = {
-    mac = "TODO_REPLACE_WITH_MAC";  # Hardware discovery vereist
+    mac = "b0:22:7a:2f:62:53";
     ip  = "10.0.20.11/24";
   };
 
   # Disk device overschrijven indien niet /dev/sda:
-  homelab.node.disk = "TODO_REPLACE_WITH_DISK";
+  homelab.node.disk = "/dev/nvme0n1";
 
   # Node-specifieke SSH keys (extra naast common/default.nix)
   users.users.root.openssh.authorizedKeys.keys = [];

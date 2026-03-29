@@ -9,8 +9,7 @@
 
 keys:
   - &workstation age1m483x92dqmkazqx8xu7xc8waw3uh23a890uv4tcj6d4xafg98alqq0vqeh
-  # Node keys — invullen na eerste deploy:
-  # - &node1 age1PLACEHOLDER_NODE1
+  - &node1 age12ktgr3k30msf4ur4g8pknfzqhzh60m23dgtzketquzgm4s6kvvkq8q53x3
   # - &node2 age1PLACEHOLDER_NODE2
   # - &node3 age1PLACEHOLDER_NODE3
 
@@ -19,8 +18,10 @@ creation_rules:
     key_groups:
       - age:
           - *workstation
+          - *node1
 
   - path_regex: apps/.*/manifests/secret\.yaml$
     key_groups:
       - age:
           - *workstation
+          - *node1

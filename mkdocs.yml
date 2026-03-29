@@ -1,5 +1,5 @@
 site_name: David's Homelab
-site_description: Sovereign bare-metal NixOS homelab — K3s HA cluster on HP EliteDesk 800 G4
+site_description: Sovereign bare-metal NixOS homelab — 3-node K3s HA cluster, fully declarative GitOps
 site_url: https://homelab.daviddelporte.com
 repo_url: https://github.com/Yasuke2000/Homelab
 repo_name: Yasuke2000/Homelab
