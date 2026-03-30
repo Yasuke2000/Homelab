@@ -118,11 +118,13 @@
 
   # ---------------------------------------------------------------------------
   # NFS client support – for TrueNAS SCALE mounts
+  # rpc.statd is required for NFSv3 file locking (used by jellyfin, romm PVs)
   # ---------------------------------------------------------------------------
   services.rpcbind.enable = true;
+  systemd.services.rpc-statd.wantedBy = [ "multi-user.target" ];
 
   # ---------------------------------------------------------------------------
-  # Kernel modules needed by Longhorn / K3s
+  # Kernel modules needed by Longhorn / K3s / NFS
   # ---------------------------------------------------------------------------
   boot.kernelModules = [
     "iscsi_tcp"   # Longhorn block storage
@@ -130,6 +132,7 @@
     "dm_thin_pool"
     "overlay"     # container overlay fs
     "br_netfilter" # required for K8s networking
+    "lockd"       # NFSv3 file locking (required by rpc.statd)
   ];
 
   boot.kernel.sysctl = {
