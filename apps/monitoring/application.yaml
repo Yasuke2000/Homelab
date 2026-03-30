@@ -21,10 +21,12 @@ spec:
     targetRevision: "70.4.2"
     helm:
       valuesObject:
-        # Disable admission webhooks entirely (pre-sync hook RBAC conflicts on fresh install via ArgoCD)
+        # Use cert-manager for admission webhook TLS (eliminates pre-sync hook RBAC jobs)
+        # Pre-sync certgen jobs conflict on ArgoCD retries — cert-manager avoids this entirely
         prometheusOperator:
           admissionWebhooks:
-            enabled: false
+            certManager:
+              enabled: true
             patch:
               enabled: false
 
