@@ -21,6 +21,12 @@ spec:
     targetRevision: "70.4.2"
     helm:
       valuesObject:
+        # Disable admission webhook cert rotation (pre-sync hooks conflict on fresh install via ArgoCD)
+        prometheusOperator:
+          admissionWebhooks:
+            patch:
+              enabled: false
+
         # Grafana
         grafana:
           enabled: true
