@@ -10,12 +10,10 @@
 #
 # SOLUTION:
 #   This Kyverno mutation policy patches all Longhorn pods to:
-#     1. Add an initContainer that symlinks NixOS paths into /usr/local/bin
-#     2. Inject the NixOS binary path into the PATH environment variable
+#     1. Add an initContainer that symlinks NixOS paths into /usr/local/nixos-bin
+#     2. Inject PATH env var into each container via foreach
 #
 # APPLY ORDER: Kyverno must be running BEFORE Longhorn is installed.
-#   ArgoCD handles this via syncWave annotations:
-#     Kyverno (wave -5) → this policy (wave -4) → Longhorn (wave 0)
 #
 # Reference: https://github.com/longhorn/longhorn/issues/2166
 # ---------------------------------------------------------------------------
@@ -32,7 +30,7 @@ metadata:
       fixing the missing executable errors in Longhorn engine containers.
 spec:
   rules:
-    - name: patch-longhorn-path
+    - name: add-nixos-path-initcontainer
       match:
         any:
           - resources:
@@ -50,9 +48,9 @@ spec:
                   - sh
                   - -c
                   - |
-                    # Create symlinks for binaries Longhorn needs
-                    for bin in mount umount blkid findmnt lsblk; do
-                      src=$(which $bin 2>/dev/null || echo "")
+                    mkdir -p /usr/local/nixos-bin
+                    for bin in mount umount blkid findmnt lsblk nsenter; do
+                      src=$(which $bin 2>/dev/null || true)
                       if [ -n "$src" ]; then
                         ln -sf "$src" /usr/local/nixos-bin/$bin
                       fi
@@ -66,8 +64,25 @@ spec:
             volumes:
               - name: nixos-bin
                 emptyDir: {}
-            containers:
-              - name: "*"
-                env:
-                  - name: PATH
-                    value: "/usr/local/nixos-bin:/run/current-system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+    - name: patch-nixos-path-env
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - longhorn-system
+      mutate:
+        foreach:
+          - list: "request.object.spec.containers"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - name: "{{ element.name }}"
+                    env:
+                      - name: PATH
+                        value: "/usr/local/nixos-bin:/run/current-system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                    volumeMounts:
+                      - name: nixos-bin
+                        mountPath: /usr/local/nixos-bin
