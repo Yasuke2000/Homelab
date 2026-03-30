@@ -68,6 +68,7 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGBNjGpptYwOI0mHX7z1LeUoOFVRWQxw3KvyY0wt1YHB homelab-admin-pc"
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaLz9nbBy/IjEbnpBipuGWGKtoFEkcDrVX8NrwYX291 homelab-admin-phone"
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINHwlPiaC+iv48TXBXXNrvwfqnKko9C4ryP9oP0wZraG homelab-admin-workstation"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICTGSJxf77pWPjijfJUhPbfDXGlYKtCrFohdOLm6X89Q homelab-admin-werk-laptop"
     ];
   };
 
@@ -75,6 +76,7 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGBNjGpptYwOI0mHX7z1LeUoOFVRWQxw3KvyY0wt1YHB homelab-admin-pc"
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaLz9nbBy/IjEbnpBipuGWGKtoFEkcDrVX8NrwYX291 homelab-admin-phone"
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINHwlPiaC+iv48TXBXXNrvwfqnKko9C4ryP9oP0wZraG homelab-admin-workstation"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICTGSJxf77pWPjijfJUhPbfDXGlYKtCrFohdOLm6X89Q homelab-admin-werk-laptop"
   ];
 
   # ---------------------------------------------------------------------------
