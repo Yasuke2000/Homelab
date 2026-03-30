@@ -28,6 +28,9 @@ spec:
     targetRevision: "1.11.0"
     helm:
       valuesObject:
+        preUpgradeChecker:
+          jobEnabled: false  # Disabled: pre-upgrade job fails on fresh install via ArgoCD (namespace env var bug)
+
         defaultSettings:
           # Replicas across 3 nodes
           defaultReplicaCount: 3
