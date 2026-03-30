@@ -1,39 +1,22 @@
 ---
-# ---------------------------------------------------------------------------
-# ArgoCD — manages itself after initial bootstrap
-#
-# Initial install (manual, run once):
-#   kubectl create namespace argocd
-#   kubectl apply --server-side --force-conflicts \
-#     -n argocd \
-#     -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-#
-# After bootstrap, ArgoCD manages its own upgrades via this Application.
-#
-# TODO: verify chart version — https://artifacthub.io/packages/helm/argo/argo-cd
-# ---------------------------------------------------------------------------
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: argocd
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-5"  # install before all apps
+    argocd.argoproj.io/sync-wave: "-5"
 spec:
   project: default
 
   source:
     repoURL: https://argoproj.github.io/argo-helm
     chart: argo-cd
-    # TODO: pin to latest ArgoCD v3 chart version
-    # Check: helm search repo argo/argo-cd --versions | head -5
     targetRevision: "7.8.0"
     helm:
       valuesObject:
         global:
-          # TODO: set your ArgoCD domain
-          domain: argocd.daviddelporte.com   # TODO
+          domain: argocd.daviddelporte.com
 
         server:
           ingress:
@@ -43,86 +26,15 @@ spec:
               traefik.ingress.kubernetes.io/router.entrypoints: websecure
               cert-manager.io/cluster-issuer: letsencrypt-staging
             hosts:
-              - argocd.daviddelporte.com     # TODO
+              - argocd.daviddelporte.com
             tls:
               - secretName: argocd-tls
                 hosts:
-                  - argocd.daviddelporte.com # TODO
+                  - argocd.daviddelporte.com
 
         configs:
           params:
-            # Disable TLS on the server side (Traefik handles TLS termination)
             server.insecure: true
-          cmp:
-            create: true
-            plugins:
-              sops:
-                generate:
-                  command:
-                    - sh
-                    - -c
-                    - |
-                      set -e
-                      for f in *.yaml; do
-                        if grep -q 'sops:' "$f" 2>/dev/null; then
-                          SOPS_AGE_KEY_FILE=/sops/key.txt sops --decrypt "$f"
-                        else
-                          cat "$f"
-                        fi
-                        echo "---"
-                      done
-                discover:
-                  find:
-                    glob: "**/secret.yaml"
-
-        repoServer:
-          volumes:
-            - name: sops-age-key
-              secret:
-                secretName: argocd-sops-age-key
-            - name: custom-tools
-              emptyDir: {}
-            - name: cmp-tmp
-              emptyDir: {}
-          volumeMounts:
-            - name: sops-age-key
-              mountPath: /sops
-              readOnly: true
-          env:
-            - name: SOPS_AGE_KEY_FILE
-              value: /sops/key.txt
-          initContainers:
-            - name: install-sops
-              image: alpine:3.21
-              command:
-                - sh
-                - -c
-                - |
-                  wget -qO /custom-tools/sops \
-                    https://github.com/getsops/sops/releases/download/v3.9.4/sops-v3.9.4.linux.amd64
-                  chmod +x /custom-tools/sops
-              volumeMounts:
-                - name: custom-tools
-                  mountPath: /custom-tools
-          extraContainers:
-            - name: sops-plugin
-              image: alpine:3.21
-              command: [/var/run/argocd/argocd-cmp-server]
-              env:
-                - name: SOPS_AGE_KEY_FILE
-                  value: /sops/key.txt
-              volumeMounts:
-                - name: var-files
-                  mountPath: /var/run/argocd
-                - name: plugins
-                  mountPath: /home/argocd/cmp-server/plugins
-                - name: sops-age-key
-                  mountPath: /sops
-                  readOnly: true
-                - name: custom-tools
-                  mountPath: /usr/local/bin
-                - name: cmp-tmp
-                  mountPath: /tmp
 
   destination:
     server: https://kubernetes.default.svc
@@ -132,8 +44,7 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-    # automated sync disabled — ArgoCD was bootstrapped manually via install.yaml
-    # Enable after migrating to full Helm-managed ArgoCD install
+    # automated sync disabled — bootstrapped manually via install.yaml
     # automated:
     #   prune: true
     #   selfHeal: true
