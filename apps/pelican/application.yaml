@@ -10,6 +10,8 @@ spec:
     repoURL: https://github.com/Yasuke2000/Homelab.git
     targetRevision: master
     path: apps/pelican/manifests
+    directory:
+      exclude: "secret.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: pelican
