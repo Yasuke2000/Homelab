@@ -32,7 +32,7 @@ spec:
         prometheus:
           enabled: true
           servicemonitor:
-            enabled: true
+            enabled: false  # disabled until kube-prometheus-stack is deployed
 
   destination:
     server: https://kubernetes.default.svc
