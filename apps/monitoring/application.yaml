@@ -131,4 +131,3 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
-      - Replace=true  # for CRD upgrades
