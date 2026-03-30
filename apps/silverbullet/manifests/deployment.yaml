@@ -33,15 +33,14 @@ spec:
             - containerPort: 3000
               name: http
           env:
-            - name: SB_USER
-              # TODO: set your username (format: "user:password" or use auth file)
-              # Better: use SB_AUTH env var pointing to a secret
-              value: "admin"
             - name: SB_PASS
               valueFrom:
                 secretKeyRef:
                   name: silverbullet-secrets
-                  key: password  # TODO: add silverbullet.password to secrets/secrets.yaml
+                  key: password
+            - name: SB_USER
+              # SilverBullet v2.x requires format "user:pass"
+              value: "admin:$(SB_PASS)"
           volumeMounts:
             - name: space
               mountPath: /space

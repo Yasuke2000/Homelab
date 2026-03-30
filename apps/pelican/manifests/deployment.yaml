@@ -46,6 +46,8 @@ spec:
             - name: APP_URL
               # TODO: set your Pelican domain
               value: "https://games.daviddelporte.com"
+            - name: TRUSTED_PROXIES
+              value: "*"
             - name: DB_HOST
               value: pelican-mysql
             - name: DB_DATABASE

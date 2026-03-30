@@ -32,6 +32,8 @@ spec:
           env:
             - name: NODE_ENV
               value: production
+            - name: SERVER_URL
+              value: "https://shelf.daviddelporte.com"
             - name: SESSION_SECRET
               valueFrom:
                 secretKeyRef:
