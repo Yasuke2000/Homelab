@@ -2,6 +2,9 @@
 # ---------------------------------------------------------------------------
 # Shelf.nu — asset/library management
 # TODO: set domain
+# TODO: BLOCKED — shelf.nu latest requires Supabase (SUPABASE_URL, SUPABASE_SERVICE_ROLE,
+#   SUPABASE_ANON_KEY). Needs a Supabase instance (cloud free tier or self-hosted).
+#   Until then, the pod will crash on startup.
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1

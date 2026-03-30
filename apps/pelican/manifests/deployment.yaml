@@ -48,6 +48,8 @@ spec:
               value: "https://games.daviddelporte.com"
             - name: TRUSTED_PROXIES
               value: "*"
+            - name: PROXY
+              value: "true"
             - name: DB_HOST
               value: pelican-mysql
             - name: DB_DATABASE
