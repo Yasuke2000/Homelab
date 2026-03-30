@@ -21,9 +21,10 @@ spec:
     targetRevision: "70.4.2"
     helm:
       valuesObject:
-        # Disable admission webhook cert rotation (pre-sync hooks conflict on fresh install via ArgoCD)
+        # Disable admission webhooks entirely (pre-sync hook RBAC conflicts on fresh install via ArgoCD)
         prometheusOperator:
           admissionWebhooks:
+            enabled: false
             patch:
               enabled: false
 
