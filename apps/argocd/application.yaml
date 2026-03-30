@@ -129,9 +129,11 @@ spec:
     namespace: argocd
 
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - ServerSideApply=true
       - CreateNamespace=true
+    # automated sync disabled — ArgoCD was bootstrapped manually via install.yaml
+    # Enable after migrating to full Helm-managed ArgoCD install
+    # automated:
+    #   prune: true
+    #   selfHeal: true
