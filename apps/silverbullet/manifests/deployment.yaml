@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: silverbullet
-          image: ghcr.io/silverbulletmd/silverbullet:0.9.5
+          image: ghcr.io/silverbulletmd/silverbullet:2.5.2
           ports:
             - containerPort: 3000
               name: http

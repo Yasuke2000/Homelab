@@ -38,7 +38,7 @@ spec:
           command: ['sh', '-c', 'until nc -z pelican-redis 6379; do sleep 2; done']
       containers:
         - name: panel
-          image: ghcr.io/pelican-dev/panel:v1.0.5
+          image: ghcr.io/pelican-dev/panel:v1.0.0-beta33
           ports:
             - containerPort: 80
               name: http

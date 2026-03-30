@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: shelf
-          image: ghcr.io/shelf-nu/shelf.nu:2.6.3
+          image: ghcr.io/shelf-nu/shelf.nu:latest
           ports:
             - containerPort: 8080
               name: http
