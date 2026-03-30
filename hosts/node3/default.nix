@@ -9,7 +9,7 @@
   networking.hostName = "homelab-node3";
 
   homelab.node = {
-    mac = "TODO_REPLACE_WITH_MAC";
+    mac = "a8:b1:3b:93:77:e7";
     ip  = "10.0.20.13/24";
   };
 
@@ -21,6 +21,6 @@
     "--kubelet-arg=cgroup-driver=systemd"
   ]);
 
-  homelab.node.disk = "TODO_REPLACE_WITH_DISK";
+  homelab.node.disk = "/dev/nvme0n1";
   users.users.root.openssh.authorizedKeys.keys = [];
 }
