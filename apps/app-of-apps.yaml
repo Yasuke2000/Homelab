@@ -29,7 +29,7 @@ spec:
     path: apps
     directory:
       recurse: true          # discover Application yamls in subdirs
-      exclude: "app-of-apps.yaml"  # don't recurse into self
+      include: "*application.yaml"  # only Application manifests, not secret.yaml etc
 
   destination:
     server: https://kubernetes.default.svc
