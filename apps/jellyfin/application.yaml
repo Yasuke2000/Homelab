@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Yasuke2000/Homelab.git
-    targetRevision: HEAD
+    targetRevision: master
     path: apps/jellyfin/manifests
   destination:
     server: https://kubernetes.default.svc

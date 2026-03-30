@@ -19,8 +19,10 @@ spec:
 
   source:
     repoURL: https://github.com/Yasuke2000/Homelab.git
-    targetRevision: HEAD
+    targetRevision: master
     path: apps/vaultwarden/manifests
+    plugin:
+      name: sops
 
   destination:
     server: https://kubernetes.default.svc
