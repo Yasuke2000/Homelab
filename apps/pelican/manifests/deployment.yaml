@@ -44,12 +44,8 @@ spec:
               name: http
           env:
             - name: APP_URL
-              # TODO: set your Pelican domain
-              value: "https://games.daviddelporte.com"
-            - name: TRUSTED_PROXIES
-              value: "*"
-            - name: PROXY
-              value: "true"
+              # Using http:// since TLS is terminated at Traefik (avoids LE_EMAIL requirement)
+              value: "http://games.daviddelporte.com"
             - name: DB_HOST
               value: pelican-mysql
             - name: DB_DATABASE
