@@ -25,7 +25,7 @@ spec:
   source:
     # TODO: replace with your actual repo URL
     repoURL: https://github.com/Yasuke2000/Homelab.git
-    targetRevision: HEAD
+    targetRevision: master
     path: apps
     directory:
       recurse: true          # discover Application yamls in subdirs
