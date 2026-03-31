@@ -5,18 +5,31 @@ Sovereign bare-metal NixOS homelab. Three HP mini PCs (ProDesk 400 G7 SFF + 2x E
 K3s HA cluster (embedded etcd). Synology DS918+ NAS (NFS storage).
 GitOps via ArgoCD v3. All secrets via sops-nix + age.
 
-## Current deployment status (updated 2026-03-18)
-**Phase: Pre-deployment — repo is fully configured, nodes not yet provisioned.**
+## Current deployment status (updated 2026-03-31)
+**Phase: Deployed — cluster fully operational.**
 
 | What | Status |
 |------|--------|
-| NixOS configs (node1/2/3) | Ready — NIC/disk names are templates, fill after hardware check |
-| secrets/secrets.yaml | Encrypted with sops age |
-| All app Kubernetes Secrets | Encrypted with sops age |
-| .sops.yaml | Workstation key only — node keys added after first deploy |
-| CI (yaml-lint, kubeconform, sops-check, line-endings) | Passing |
-| CI (nix flake check) | Passing |
-| GitHub issues | #14 Fase 2, #15 Fase 3, #16 Fase 4, #17 Fase 5, #18 Fase 6 |
+| NixOS configs (node1/2/3) | Deployed — K3s v1.32.7+k3s1, NixOS 25.05 |
+| K3s cluster | 3/3 nodes Ready (control-plane+etcd+worker) |
+| Tailscale | All 3 nodes connected (node1=100.109.28.21, node2=100.124.196.27, node3=100.91.95.28) |
+| secrets/secrets.yaml | Encrypted with sops age (4 keys: workstation + 3 nodes) |
+| All app Kubernetes Secrets | Applied and Healthy |
+| .sops.yaml | All 4 keys: workstation + node1 + node2 + node3 |
+| ArgoCD | Bootstrapped — all apps Synced+Healthy |
+| MetalLB | Healthy — LB IP 10.0.20.100 |
+| Traefik | Healthy — ingress working |
+| cert-manager | Healthy — DNS-01 Cloudflare, wildcard cert provisioning |
+| Longhorn | Healthy — distributed storage |
+| All apps | Synced+Healthy (see app list below) |
+| Tailscale auth key | tskey-auth-kiQnPQ9GpF11CNTRL (expires 2026-06-29, reusable) |
+
+**Known pending:**
+
+- cert-manager-config: Progressing (wildcard cert DNS-01 challenge in progress)
+- argocd: OutOfSync (self-manage, normal)
+- Synology NFS shares: need to be created manually (DSM 10.0.20.14)
+- Tailscale subnet route: needs approval at login.tailscale.com/admin/machines
 
 **Next action: Issue #14 — boot nodes from NixOS ISO and run collect-hardware-info.sh**
 
