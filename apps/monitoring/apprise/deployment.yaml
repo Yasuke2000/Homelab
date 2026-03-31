@@ -9,10 +9,6 @@
 # To add more notification targets (ntfy, Telegram, email, etc.):
 #   Just add URLs to the alerts.yml ConfigMap and commit. No code changes needed.
 #
-# FIRST-TIME SETUP:
-#   1. Create a Discord webhook: Channel Settings → Integrations → Webhooks
-#   2. Replace WEBHOOK_ID and WEBHOOK_TOKEN placeholders below
-#   3. For a PUBLIC git repo: manage alerts.yml via kubectl apply instead of git
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
@@ -30,9 +26,7 @@ data:
   alerts.yml: |
     version: 1
     urls:
-      # Discord — extract from https://discord.com/api/webhooks/WEBHOOK_ID/TOKEN
-      # Format: discord://WEBHOOK_ID/WEBHOOK_TOKEN?format=markdown
-      - discord://WEBHOOK_ID/WEBHOOK_TOKEN?format=markdown:
+      - discord://1488511710469034154/OrKmMwTcr-lKestQg_xgujjmnsj9WbBjps0kp8twPMpnhhp0JPFB-Yd4QWxH3-w5t3wI?format=markdown:
         - tag: discord, alerts
       # --- Add more targets below (no code changes needed) ---
       # - ntfy://ntfy.sh/homelab-alerts:
