@@ -47,12 +47,17 @@ spec:
                 secretKeyRef:
                   name: romm-secrets
                   key: secretKey   # TODO: add to secrets/secrets.yaml
-            # IGDB API for cover art (optional but recommended)
-            # TODO: get API keys from https://api-docs.igdb.com/
-            # - name: IGDB_CLIENT_ID
-            #   value: ""
-            # - name: IGDB_CLIENT_SECRET
-            #   value: ""
+            # IGDB metadata provider (cover art, descriptions, ratings)
+            - name: IGDB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: igdbClientId
+            - name: IGDB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: igdbClientSecret
           volumeMounts:
             - name: roms
               mountPath: /romm/library
