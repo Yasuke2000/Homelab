@@ -1,7 +1,6 @@
 ---
 # ---------------------------------------------------------------------------
 # Homepage config via ConfigMap — volledig GitOps-beheerd
-# TODO: vervang alle daviddelporte.com door jouw domein
 # Docs: https://gethomepage.dev/configs/
 # ---------------------------------------------------------------------------
 
@@ -13,7 +12,7 @@ metadata:
 data:
   settings.yaml: |
     title: Homelab
-    favicon: https://home.daviddelporte.com/favicon.ico  # TODO
+    favicon: https://home.daviddelporte.com/favicon.ico
     theme: dark
     color: slate
     headerStyle: boxed
@@ -39,104 +38,104 @@ data:
     - Developer:
         - GitHub:
             - icon: github.png
-              href: https://github.com/Yasuke2000/Homelab  # TODO
+              href: https://github.com/Yasuke2000/Homelab
         - ArgoCD:
             - icon: argocd.png
-              href: https://argocd.daviddelporte.com  # TODO
+              href: https://argocd.daviddelporte.com
         - Longhorn:
             - icon: longhorn.png
-              href: https://longhorn.daviddelporte.com  # TODO
+              href: https://longhorn.daviddelporte.com
 
   services.yaml: |
     - Infrastructure:
         - ArgoCD:
             icon: argocd.png
-            href: https://argocd.daviddelporte.com     # TODO
+            href: https://argocd.daviddelporte.com
             description: GitOps deployments
             namespace: argocd
             app: argocd-server
 
         - Traefik:
             icon: traefik.png
-            href: https://traefik.daviddelporte.com    # TODO
+            href: https://traefik.daviddelporte.com
             description: Ingress controller
 
         - Longhorn:
             icon: longhorn.png
-            href: https://longhorn.daviddelporte.com   # TODO
+            href: https://longhorn.daviddelporte.com
             description: Distributed storage
 
         - TrueNAS:
             icon: truenas.png
-            href: http://10.0.20.14                 # direct IP, geen TLS op NAS
+            href: http://10.0.20.14
             description: NAS storage
 
     - Media:
         - Jellyfin:
             icon: jellyfin.png
-            href: https://jellyfin.daviddelporte.com   # TODO
+            href: https://jellyfin.daviddelporte.com
             description: Media server
             namespace: media
             app: jellyfin
 
         - Jellyseerr:
             icon: jellyseerr.png
-            href: https://requests.daviddelporte.com   # TODO
+            href: https://requests.daviddelporte.com
             description: Media requests
             namespace: media
             app: jellyseerr
 
         - RomM:
             icon: mdi-controller-classic
-            href: https://romm.daviddelporte.com       # TODO
+            href: https://romm.daviddelporte.com
             description: ROM manager
 
     - Apps:
         - Vaultwarden:
             icon: vaultwarden.png
-            href: https://vault.daviddelporte.com      # TODO
+            href: https://vault.daviddelporte.com
             description: Password manager
             namespace: vaultwarden
             app: vaultwarden
 
         - Actual Budget:
             icon: actual.png
-            href: https://budget.daviddelporte.com     # TODO
+            href: https://budget.daviddelporte.com
             description: Personal finance
 
         - SilverBullet:
             icon: mdi-notebook-edit
-            href: https://notes.daviddelporte.com      # TODO
+            href: https://notes.daviddelporte.com
             description: Notes & wiki
 
         - Shelf:
             icon: mdi-bookshelf
-            href: https://shelf.daviddelporte.com      # TODO
+            href: https://shelf.daviddelporte.com
             description: Library manager
 
         - Ghost:
             icon: ghost.png
-            href: https://daviddelporte.com            # TODO
+            href: https://daviddelporte.com
             description: Website / blog
 
         - Pelican:
             icon: mdi-gamepad-variant
-            href: https://games.daviddelporte.com      # TODO
+            href: https://games.daviddelporte.com
             description: Game servers
 
     - Monitoring:
         - Grafana:
             icon: grafana.png
-            href: https://grafana.daviddelporte.com    # TODO
+            href: https://grafana.daviddelporte.com
             description: Metrics & dashboards
             namespace: monitoring
             app: kube-prometheus-stack-grafana
 
         - Uptime Kuma:
             icon: uptime-kuma.png
-            href: https://status.daviddelporte.com     # TODO
+            href: https://status.daviddelporte.com
             description: Uptime monitoring
-            namespace: monitoring
+            namespace: uptime-kuma
             app: uptime-kuma
 
   widgets.yaml: |

@@ -1,0 +1,39 @@
+---
+# ---------------------------------------------------------------------------
+# cert-manager config — ClusterIssuers + wildcard Certificate
+#
+# Separate from the cert-manager Helm chart Application so the CRDs
+# (ClusterIssuer) are available before this syncs.
+#
+# Prereq: cloudflare-api-token Secret must exist in cert-manager namespace.
+# Deploy with: kubectl apply -f apps/cert-manager/cluster-issuer.yaml
+# Or run: bash scripts/create-k8s-secrets.sh (handles cloudflare token)
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-config
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"  # after cert-manager CRDs (wave -2)
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Yasuke2000/Homelab.git
+    targetRevision: master
+    path: apps/cert-manager
+    directory:
+      include: "{cluster-issuer.yaml,wildcard-certificate.yaml}"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
