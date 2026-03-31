@@ -176,6 +176,38 @@
     };
   };
 
+  # ---------------------------------------------------------------------------
+  # Tailscale — remote access / VPN mesh
+  #
+  # PREREQUISITE before nixos-rebuild:
+  #   1. Generate a reusable auth key at https://login.tailscale.com/admin/settings/keys
+  #   2. Add to secrets/secrets.yaml via sops:
+  #        sops secrets/secrets.yaml
+  #        # Add line: tailscale_key: tskey-auth-XXXX-YYYY
+  #   3. Commit the updated secrets.yaml, then run nixos-rebuild
+  # ---------------------------------------------------------------------------
+  services.tailscale = {
+    enable            = true;
+    openFirewall      = true;       # Opens 41641/UDP for direct connections
+    authKeyFile       = config.sops.secrets.tailscale_key.path;
+    extraUpFlags      = [
+      "--accept-dns=false"          # CRITICAL: don't override CoreDNS / K3s pod DNS
+      "--ssh"                       # Tailscale SSH (backup access method)
+    ];
+    useRoutingFeatures = "client";  # Accept advertised routes from subnet routers
+  };
+
+  # Trust all traffic arriving on the Tailscale WireGuard interface
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
+
+  # Workaround for nixpkgs#430756: tailscaled-autoconnect blocks boot indefinitely
+  # when the auth key is expired or invalid. 10s timeout prevents boot hangs.
+  systemd.services.tailscaled-autoconnect.serviceConfig.TimeoutStartSec = "10s";
+
+  sops.secrets.tailscale_key = {
+    sopsFile = ../secrets/secrets.yaml;
+  };
+
   # NixOS release – must match the channel you're tracking
   system.stateVersion = "25.05";
 }

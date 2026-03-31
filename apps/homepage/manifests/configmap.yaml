@@ -138,6 +138,13 @@ data:
             namespace: uptime-kuma
             app: uptime-kuma
 
+        - Apprise:
+            icon: mdi-bell-ring
+            href: https://apprise.daviddelporte.com
+            description: Notification gateway
+            namespace: monitoring
+            app: apprise
+
   widgets.yaml: |
     - kubernetes:
         cluster:

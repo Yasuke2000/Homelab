@@ -40,11 +40,11 @@ spec:
               traefik.ingress.kubernetes.io/router.entrypoints: websecure
               cert-manager.io/cluster-issuer: letsencrypt-staging
             hosts:
-              - grafana.daviddelporte.com   # TODO
+              - grafana.daviddelporte.com
             tls:
               - secretName: grafana-tls
                 hosts:
-                  - grafana.daviddelporte.com  # TODO
+                  - grafana.daviddelporte.com
 
           admin:
             existingSecret: grafana-admin-secret
@@ -89,11 +89,9 @@ spec:
                   matchers:
                     - severity =~ "critical|warning"
             receivers:
-              # TODO: deploy alertmanager-discord bridge before first boot
-              # See docs/alerting.md for setup instructions
               - name: 'discord'
                 webhook_configs:
-                  - url: 'http://alertmanager-discord.monitoring.svc.cluster.local:9094'
+                  - url: 'http://apprise-webhook.monitoring.svc.cluster.local:3000?template=alertmanager&key=alerts'
                     send_resolved: true
             templates: []
           alertmanagerSpec:

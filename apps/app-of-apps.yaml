@@ -7,8 +7,6 @@
 #
 # APPLY ONCE (manual bootstrap after ArgoCD is installed):
 #   kubectl apply -f apps/app-of-apps.yaml
-#
-# TODO: replace repoURL with your actual GitHub repo URL
 # ---------------------------------------------------------------------------
 
 apiVersion: argoproj.io/v1alpha1
@@ -23,7 +21,6 @@ spec:
   project: default
 
   source:
-    # TODO: replace with your actual repo URL
     repoURL: https://github.com/Yasuke2000/Homelab.git
     targetRevision: master
     path: apps

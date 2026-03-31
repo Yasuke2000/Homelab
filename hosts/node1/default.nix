@@ -21,4 +21,23 @@
 
   # Node-specifieke SSH keys (extra naast common/default.nix)
   users.users.root.openssh.authorizedKeys.keys = [];
+
+  # ---------------------------------------------------------------------------
+  # Tailscale subnet router — node1 advertises the home LAN to the tailnet
+  # After nixos-rebuild: approve the route in Tailscale admin console:
+  #   https://login.tailscale.com/admin/machines → node1 → Edit route settings
+  # ---------------------------------------------------------------------------
+  services.tailscale = {
+    useRoutingFeatures = lib.mkForce "server";  # Override "client" from common
+    extraUpFlags       = lib.mkForce [
+      "--accept-dns=false"
+      "--ssh"
+      "--advertise-routes=10.0.20.0/24"          # Home LAN + MetalLB range
+    ];
+  };
+
+  # IPv6 forwarding for subnet router (IPv4 forwarding already set in common)
+  boot.kernel.sysctl = {
+    "net.ipv6.conf.all.forwarding" = 1;
+  };
 }

@@ -10,8 +10,7 @@
 #   - cert-manager certificate expiry
 #
 # Alertmanager routes are configured in the kube-prometheus-stack Helm values.
-# TODO: add Alertmanager receivers (e.g. Discord webhook, email, PagerDuty)
-#       under apps/monitoring/application.yaml → alertmanager.config
+# Receiver: Discord via Apprise (apprise-webhook bridge → apps/monitoring/apprise/)
 # ---------------------------------------------------------------------------
 
 apiVersion: monitoring.coreos.com/v1
