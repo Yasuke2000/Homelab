@@ -3,12 +3,11 @@
 # Longhorn RecurringJobs — automatic snapshots and backups
 #
 # Daily snapshots: 03:00, retain 7
-# Weekly backup to TrueNAS NFS: Sunday 04:00, retain 4
+# Weekly backup to Synology NFS: Sunday 04:00, retain 4
 #
-# NOTE: The weekly backup task requires a backup target configured in Longhorn.
-# After TrueNAS is set up (Phase 3), configure the NFS backup target in the
-# Longhorn UI: Settings → Backup → Backup Target → nfs://10.0.20.14:/mnt/datapool/longhorn-backup
-# or set it via the Helm values in apps/longhorn/application.yaml.
+# NOTE: backup target is set in apps/longhorn/application.yaml:
+#   backupTarget: "nfs://10.0.20.14:/volume1/longhorn-backup"
+# Requires Synology NFS share /volume1/longhorn-backup to exist.
 # ---------------------------------------------------------------------------
 
 apiVersion: longhorn.io/v1beta2
