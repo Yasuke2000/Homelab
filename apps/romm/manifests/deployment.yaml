@@ -1,8 +1,8 @@
 ---
 # ---------------------------------------------------------------------------
 # RomM — ROM manager with EmulatorJS integration
-# ROMs stored on TrueNAS NFS mount
-# TODO: create NFS share on TrueNAS: /mnt/datapool/roms
+# ROMs stored on Synology DS918+ NFS mount (10.0.20.14)
+# NFS share path: /volume1/roms (create in Synology DSM → File Station)
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1
@@ -70,9 +70,8 @@ spec:
       volumes:
         - name: roms
           nfs:
-            # TODO: set your TrueNAS NFS path for ROMs
             server: 10.0.20.14
-            path: /mnt/datapool/roms
+            path: /volume1/roms
         - name: assets
           persistentVolumeClaim:
             claimName: romm-assets

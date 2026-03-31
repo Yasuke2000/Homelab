@@ -1,10 +1,7 @@
 ---
 # ---------------------------------------------------------------------------
 # Shelf.nu — asset/library management
-# TODO: set domain
-# TODO: BLOCKED — shelf.nu latest requires Supabase (SUPABASE_URL, SUPABASE_SERVICE_ROLE,
-#   SUPABASE_ANON_KEY). Needs a Supabase instance (cloud free tier or self-hosted).
-#   Until then, the pod will crash on startup.
+# Supabase project: vmqdtdkpubuhbkkmielq (eu-west-1)
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1
@@ -37,14 +34,36 @@ spec:
               value: production
             - name: SERVER_URL
               value: "https://shelf.daviddelporte.com"
+            - name: SUPABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: supabaseUrl
+            - name: SUPABASE_ANON_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: supabaseAnonPublic
+            - name: SUPABASE_SERVICE_ROLE
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: supabaseServiceRole
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: databaseUrl
+            - name: DIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: directUrl
             - name: SESSION_SECRET
               valueFrom:
                 secretKeyRef:
                   name: shelf-secrets
-                  key: sessionSecret  # TODO: add to secrets/secrets.yaml
-            # TODO: configure database URL (uses SQLite by default)
-            # - name: DATABASE_URL
-            #   value: "file:/data/shelf.db"
+                  key: sessionSecret
           volumeMounts:
             - name: data
               mountPath: /data

@@ -2,11 +2,8 @@
 # ---------------------------------------------------------------------------
 # Jellyfin — media server
 #
-# Media stored on NFS mount from TrueNAS SCALE (10.0.20.14)
-# TODO: create NFS shares on TrueNAS:
-#   /mnt/datapool/media/movies
-#   /mnt/datapool/media/tv
-#   /mnt/datapool/media/music
+# Media stored on NFS mount from Synology DS918+ (10.0.20.14)
+# NFS share path: /volume1/media (create in Synology DSM → File Station)
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1
@@ -64,9 +61,8 @@ spec:
           emptyDir: {}
         - name: media
           nfs:
-            # TODO: set your TrueNAS NFS path
             server: 10.0.20.14
-            path: /mnt/datapool/media
+            path: /volume1/media
             readOnly: true
 
 ---

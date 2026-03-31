@@ -35,10 +35,9 @@ spec:
           # Replicas across 3 nodes
           defaultReplicaCount: 3
 
-          # NFS backup target on TrueNAS SCALE
-          # TODO: create share on TrueNAS: Shares → NFS → /mnt/datapool/longhorn-backup
-          # TODO: set to your TrueNAS NFS path after creating the share
-          backupTarget: "nfs://10.0.20.14:/mnt/datapool/longhorn-backup"
+          # NFS backup target on Synology DS918+
+          # TODO: create share in Synology DSM → File Station → /volume1/longhorn-backup
+          backupTarget: "nfs://10.0.20.14:/volume1/longhorn-backup"
 
           # Where replicas store data on each node
           defaultDataPath: /var/lib/longhorn
