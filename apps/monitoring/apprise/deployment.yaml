@@ -85,7 +85,7 @@ spec:
           command:
             - sh
             - -c
-            - 'DISCORD_WEBHOOK_URL=$(cat /secrets/discord_webhook_url) envsubst < /seed/alerts.yml > /config/alerts.yml && echo "alerts.yml seeded"'
+            - 'URL=$(cat /secrets/discord_webhook_url) && sed "s|\${DISCORD_WEBHOOK_URL}|$URL|g" /seed/alerts.yml > /config/alerts.yml && echo "alerts.yml seeded"'
           volumeMounts:
             - name: config-seed
               mountPath: /seed
