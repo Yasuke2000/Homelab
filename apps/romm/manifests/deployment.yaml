@@ -211,9 +211,9 @@ spec:
   tls:
     - secretName: romm-tls
       hosts:
-        - romm.daviddelporte.com  # TODO
+        - romm.daviddelporte.com
   rules:
-    - host: romm.daviddelporte.com  # TODO
+    - host: romm.daviddelporte.com
       http:
         paths:
           - path: /

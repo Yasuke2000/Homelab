@@ -232,9 +232,9 @@ spec:
   tls:
     - secretName: pelican-tls
       hosts:
-        - games.daviddelporte.com  # TODO
+        - games.daviddelporte.com
   rules:
-    - host: games.daviddelporte.com  # TODO
+    - host: games.daviddelporte.com
       http:
         paths:
           - path: /

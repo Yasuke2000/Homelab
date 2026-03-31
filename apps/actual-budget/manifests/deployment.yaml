@@ -86,9 +86,9 @@ spec:
   tls:
     - secretName: actual-budget-tls
       hosts:
-        - budget.daviddelporte.com  # TODO
+        - budget.daviddelporte.com
   rules:
-    - host: budget.daviddelporte.com  # TODO
+    - host: budget.daviddelporte.com
       http:
         paths:
           - path: /

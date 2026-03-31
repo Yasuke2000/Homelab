@@ -2,7 +2,6 @@
 # ---------------------------------------------------------------------------
 # Ghost — website/portfolio/blog
 # Uses MySQL for production (SQLite not recommended for Ghost)
-# TODO: replace all domain references
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1
@@ -31,13 +30,12 @@ spec:
           command: ['sh', '-c', 'until nc -z ghost-mysql 3306; do echo waiting for mysql; sleep 2; done']
       containers:
         - name: ghost
-          image: ghost:5.87.2-alpine
+          image: ghost:5.90.2-alpine
           ports:
             - containerPort: 2368
               name: http
           env:
             - name: url
-              # TODO: set your Ghost domain
               value: "https://daviddelporte.com"
             - name: database__client
               value: mysql

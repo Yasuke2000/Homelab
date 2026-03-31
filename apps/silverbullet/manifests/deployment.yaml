@@ -4,7 +4,6 @@
 # https://silverbullet.md
 #
 # Single binary, no database needed — data stored as plain .md files on a PVC.
-# TODO: set your domain
 # ---------------------------------------------------------------------------
 
 apiVersion: apps/v1
@@ -33,14 +32,14 @@ spec:
             - containerPort: 3000
               name: http
           env:
-            - name: SB_PASS
+            - name: SB_USER
+              # SilverBullet v2.x requires format "username:password" as a single value.
+              # The secret's "password" key must contain the full "admin:actualpassword" string.
+              # $(VAR_NAME) substitution does NOT work for valueFrom secrets in Kubernetes.
               valueFrom:
                 secretKeyRef:
                   name: silverbullet-secrets
                   key: password
-            - name: SB_USER
-              # SilverBullet v2.x requires format "user:pass"
-              value: "admin:$(SB_PASS)"
           volumeMounts:
             - name: space
               mountPath: /space
@@ -103,9 +102,9 @@ spec:
   tls:
     - secretName: silverbullet-tls
       hosts:
-        - notes.daviddelporte.com  # TODO
+        - notes.daviddelporte.com
   rules:
-    - host: notes.daviddelporte.com  # TODO
+    - host: notes.daviddelporte.com
       http:
         paths:
           - path: /

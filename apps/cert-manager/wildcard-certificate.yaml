@@ -19,7 +19,7 @@ metadata:
 spec:
   secretName: wildcard-tls
   issuerRef:
-    name: letsencrypt-staging   # wissel naar letsencrypt-prod na verificatie
+    name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
     - "daviddelporte.com"

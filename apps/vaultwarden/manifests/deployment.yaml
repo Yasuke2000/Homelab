@@ -26,7 +26,6 @@ spec:
               name: http
           env:
             - name: DOMAIN
-              # TODO: set your Vaultwarden domain
               value: "https://vault.daviddelporte.com"
             - name: SIGNUPS_ALLOWED
               value: "false"    # disable public signups after initial setup
@@ -114,9 +113,9 @@ spec:
   tls:
     - secretName: vaultwarden-tls
       hosts:
-        - vault.daviddelporte.com   # TODO
+        - vault.daviddelporte.com
   rules:
-    - host: vault.daviddelporte.com  # TODO
+    - host: vault.daviddelporte.com
       http:
         paths:
           - path: /
