@@ -14,7 +14,7 @@ keys:
   - &node3 age185ef0fqjnpf2yr0cxlyral7kdfltsckq84egtj5fkjjdm6wn35uqm0tu8y
 
 creation_rules:
-  - path_regex: secrets/.*\.yaml$
+  - path_regex: secrets[/\\].*\.yaml$
     key_groups:
       - age:
           - *workstation
@@ -22,7 +22,7 @@ creation_rules:
           - *node2
           - *node3
 
-  - path_regex: apps/.*/manifests/secret\.yaml$
+  - path_regex: apps[/\\].*[/\\]manifests[/\\]secret\.yaml$
     key_groups:
       - age:
           - *workstation

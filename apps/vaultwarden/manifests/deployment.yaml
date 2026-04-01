@@ -34,16 +34,26 @@ spec:
                 secretKeyRef:
                   name: vaultwarden-secrets
                   key: adminToken
-            # TODO: configure SMTP for email notifications
-            # - name: SMTP_HOST
-            #   value: "smtp.daviddelporte.com"
-            # - name: SMTP_PORT
-            #   value: "587"
-            # - name: SMTP_USERNAME
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: vaultwarden-secrets
-            #       key: smtpUsername
+            - name: SMTP_HOST
+              value: "smtp-relay.brevo.com"
+            - name: SMTP_FROM
+              value: "vaultwarden@daviddelporte.com"
+            - name: SMTP_FROM_NAME
+              value: "Vaultwarden"
+            - name: SMTP_PORT
+              value: "587"
+            - name: SMTP_SECURITY
+              value: "starttls"
+            - name: SMTP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-secrets
+                  key: smtpUsername
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vaultwarden-secrets
+                  key: smtpPassword
           volumeMounts:
             - name: data
               mountPath: /data

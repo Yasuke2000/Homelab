@@ -52,9 +52,24 @@ spec:
                   key: dbPassword
             - name: mail__transport
               value: SMTP
-            # TODO: configure SMTP
-            # - name: mail__options__host
-            #   value: smtp.daviddelporte.com
+            - name: mail__from
+              value: "David Delporte <noreply@daviddelporte.com>"
+            - name: mail__options__host
+              value: "smtp-relay.brevo.com"
+            - name: mail__options__port
+              value: "587"
+            - name: mail__options__secure
+              value: "false"
+            - name: mail__options__auth__user
+              valueFrom:
+                secretKeyRef:
+                  name: ghost-secrets
+                  key: smtpUser
+            - name: mail__options__auth__pass
+              valueFrom:
+                secretKeyRef:
+                  name: ghost-secrets
+                  key: smtpPassword
           volumeMounts:
             - name: content
               mountPath: /var/lib/ghost/content

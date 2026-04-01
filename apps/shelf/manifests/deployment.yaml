@@ -69,6 +69,27 @@ spec:
                 secretKeyRef:
                   name: shelf-secrets
                   key: inviteTokenSecret
+            - name: SMTP_HOST
+              value: "smtp-relay.brevo.com"
+            - name: SMTP_PORT
+              value: "587"
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: smtpUser
+            - name: SMTP_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: smtpPassword
+            - name: SMTP_FROM
+              value: "shelf@daviddelporte.com"
+            - name: MAPTILER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: maptilerToken
           volumeMounts:
             - name: data
               mountPath: /data
