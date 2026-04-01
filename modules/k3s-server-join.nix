@@ -33,9 +33,6 @@
       # --flannel-iface removed: K3s auto-detects via --node-ip routing
 
       "--kubelet-arg=cgroup-driver=systemd"
-
-      # Encrypt Kubernetes secrets at rest
-      "--secrets-encryption"
     ];
   };
 
