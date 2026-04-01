@@ -11,43 +11,72 @@ metadata:
   namespace: homepage
 data:
   settings.yaml: |
-    title: Homelab
-    favicon: https://home.daviddelporte.com/favicon.ico
+    title: David's Homelab
     theme: dark
     color: slate
-    headerStyle: boxed
+    headerStyle: clean
+    target: _blank
+    useEqualHeights: true
     layout:
-      Infrastructure:
-        icon: mdi-server-network
+      GitOps & Networking:
+        tab: Infrastructure
         style: row
         columns: 4
-      Media:
-        icon: mdi-play-circle
+      Storage:
+        tab: Infrastructure
         style: row
         columns: 3
-      Apps:
-        icon: mdi-apps
-        style: row
-        columns: 4
       Monitoring:
-        icon: mdi-chart-line
+        tab: Infrastructure
+        style: row
+        columns: 3
+      Media & Entertainment:
+        tab: Apps
+        style: row
+        columns: 3
+      Productivity:
+        tab: Apps
         style: row
         columns: 3
 
-  bookmarks.yaml: |
-    - Developer:
-        - GitHub:
-            - icon: github.png
-              href: https://github.com/Yasuke2000/Homelab
-        - ArgoCD:
-            - icon: argocd.png
-              href: https://argocd.daviddelporte.com
-        - Longhorn:
-            - icon: longhorn.png
-              href: https://longhorn.daviddelporte.com
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "K3s Cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - longhorn:
+        expanded: true
+        total: true
+        labels: true
+        nodes: true
+        url: http://longhorn-frontend.longhorn-system.svc.cluster.local:80
+    - openmeteo:
+        label: Brugge
+        latitude: 51.2093
+        longitude: 3.2247
+        timezone: Europe/Brussels
+        units: metric
+        cache: 5
+    - search:
+        provider: duckduckgo
+        target: _blank
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: short
+          timeStyle: short
+          hourCycle: h23
 
   services.yaml: |
-    - Infrastructure:
+    - GitOps & Networking:
         - ArgoCD:
             icon: argocd.png
             href: https://argocd.daviddelporte.com
@@ -59,18 +88,68 @@ data:
             icon: traefik.png
             href: https://traefik.daviddelporte.com
             description: Ingress controller
+            widget:
+              type: traefik
+              url: http://traefik.traefik.svc.cluster.local:9000
 
+        - Cloudflare Tunnel:
+            icon: cloudflare.png
+            href: https://one.dash.cloudflare.com
+            description: External access (no port forwarding)
+
+        - Pelican:
+            icon: https://raw.githubusercontent.com/pelican-dev/panel/main/public/pelican.svg
+            href: https://games.daviddelporte.com
+            description: Game servers
+            namespace: pelican
+            app: pelican-panel
+
+    - Storage:
         - Longhorn:
             icon: longhorn.png
             href: https://longhorn.daviddelporte.com
-            description: Distributed storage
+            description: Distributed block storage
+            namespace: longhorn-system
+            app: longhorn-frontend
 
-        - TrueNAS:
-            icon: truenas.png
+        - NAS:
+            icon: synology.png
             href: http://10.0.20.14
-            description: NAS storage
+            description: Synology DS918+ (NFS)
 
-    - Media:
+        - DB Backups:
+            icon: mdi-database-clock
+            href: https://argocd.daviddelporte.com/applications/argocd/db-backups
+            description: Nightly MySQL backups
+            namespace: db-backups
+
+    - Monitoring:
+        - Grafana:
+            icon: grafana.png
+            href: https://grafana.daviddelporte.com
+            description: Metrics & dashboards
+            namespace: monitoring
+            app: kube-prometheus-stack-grafana
+
+        - Uptime Kuma:
+            icon: uptime-kuma.png
+            href: https://status.daviddelporte.com
+            description: Service uptime
+            namespace: uptime-kuma
+            app: uptime-kuma
+            widget:
+              type: uptimekuma
+              url: http://uptime-kuma.uptime-kuma.svc.cluster.local:3001
+              slug: homelab   # create status page "homelab" in Uptime Kuma UI first
+
+        - Apprise:
+            icon: mdi-bell-ring
+            href: https://apprise.daviddelporte.com
+            description: Notification gateway
+            namespace: monitoring
+            app: apprise
+
+    - Media & Entertainment:
         - Jellyfin:
             icon: jellyfin.png
             href: https://jellyfin.daviddelporte.com
@@ -88,87 +167,63 @@ data:
         - RomM:
             icon: mdi-controller-classic
             href: https://romm.daviddelporte.com
-            description: ROM manager
+            description: ROM manager (~900 ROMs)
+            namespace: romm
+            app: romm
+            widget:
+              type: romm
+              url: http://romm.romm.svc.cluster.local:8080
 
-    - Apps:
+    - Productivity:
+        - Ghost:
+            icon: ghost.png
+            href: https://daviddelporte.com
+            description: Website & blog
+            namespace: ghost
+            app: ghost
+
         - Vaultwarden:
-            icon: vaultwarden.png
+            icon: bitwarden.png
             href: https://vault.daviddelporte.com
             description: Password manager
             namespace: vaultwarden
             app: vaultwarden
 
-        - Actual Budget:
-            icon: actual.png
-            href: https://budget.daviddelporte.com
-            description: Personal finance
-
         - SilverBullet:
             icon: mdi-notebook-edit
             href: https://notes.daviddelporte.com
             description: Notes & wiki
+            namespace: silverbullet
+            app: silverbullet
+
+        - Actual Budget:
+            icon: actual.png
+            href: https://budget.daviddelporte.com
+            description: Personal finance
+            namespace: actual-budget
+            app: actual-budget
 
         - Shelf:
             icon: mdi-bookshelf
             href: https://shelf.daviddelporte.com
-            description: Library manager
+            description: Asset management
+            namespace: shelf
+            app: shelf
 
-        - Ghost:
-            icon: ghost.png
-            href: https://daviddelporte.com
-            description: Website / blog
-
-        - Pelican:
-            icon: mdi-gamepad-variant
-            href: https://games.daviddelporte.com
-            description: Game servers
-
-    - Monitoring:
-        - Grafana:
-            icon: grafana.png
-            href: https://grafana.daviddelporte.com
-            description: Metrics & dashboards
-            namespace: monitoring
-            app: kube-prometheus-stack-grafana
-
-        - Uptime Kuma:
-            icon: uptime-kuma.png
-            href: https://status.daviddelporte.com
-            description: Uptime monitoring
-            namespace: uptime-kuma
-            app: uptime-kuma
-
-        - Apprise:
-            icon: mdi-bell-ring
-            href: https://apprise.daviddelporte.com
-            description: Notification gateway
-            namespace: monitoring
-            app: apprise
-
-  widgets.yaml: |
-    - kubernetes:
-        cluster:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-          label: homelab
-        nodes:
-          show: true
-          cpu: true
-          memory: true
-          showLabel: true
-
-    - search:
-        provider: duckduckgo
-        target: _blank
-
-    - datetime:
-        text_size: x1
-        format:
-          timeStyle: short
-          dateStyle: short
-          hourCycle: h23
+  bookmarks.yaml: |
+    - External:
+        - GitHub Repo:
+            - icon: github.png
+              href: https://github.com/Yasuke2000/Homelab
+        - Cloudflare Dashboard:
+            - icon: cloudflare.png
+              href: https://dash.cloudflare.com
+        - Tailscale Admin:
+            - icon: tailscale.png
+              href: https://login.tailscale.com/admin/machines
+        - Homelab Docs:
+            - icon: mkdocs.png
+              href: https://homelab.daviddelporte.com
 
   kubernetes.yaml: |
-    mode: cluster   # uses the ServiceAccount we created
+    mode: cluster
