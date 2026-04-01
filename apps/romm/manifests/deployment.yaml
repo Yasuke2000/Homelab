@@ -24,6 +24,7 @@ spec:
       labels:
         app: romm
     spec:
+      enableServiceLinks: false
       containers:
         - name: romm
           image: rommapp/romm:4.7.0
