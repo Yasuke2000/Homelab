@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: cloudflared
+data:
+  config.yml: |
+    tunnel: 7211e835-36d7-48a0-bdfc-57334f8ff0e6
+    credentials-file: /dev/null
+    ingress:
+      - hostname: romm.daviddelporte.com
+        service: http://romm.romm.svc.cluster.local:8080
+      - hostname: argocd.daviddelporte.com
+        service: https://argocd-server.argocd.svc.cluster.local
+        originRequest:
+          noTLSVerify: true
+      - hostname: vault.daviddelporte.com
+        service: http://vaultwarden.vaultwarden.svc.cluster.local:80
+      - hostname: grafana.daviddelporte.com
+        service: http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80
+      - hostname: home.daviddelporte.com
+        service: http://homepage.homepage.svc.cluster.local:3000
+      - hostname: budget.daviddelporte.com
+        service: http://actual-budget.actual-budget.svc.cluster.local:5006
+      - hostname: notes.daviddelporte.com
+        service: http://silverbullet.silverbullet.svc.cluster.local:3000
+      - hostname: status.daviddelporte.com
+        service: http://uptime-kuma.uptime-kuma.svc.cluster.local:3001
+      - hostname: requests.daviddelporte.com
+        service: http://jellyseerr.media.svc.cluster.local:5055
+      - hostname: games.daviddelporte.com
+        service: http://pelican-panel.pelican.svc.cluster.local:80
+      - hostname: shelf.daviddelporte.com
+        service: http://shelf.shelf.svc.cluster.local:8080
+      - hostname: daviddelporte.com
+        service: http://ghost.ghost.svc.cluster.local:2368
+      - hostname: apprise.daviddelporte.com
+        service: http://apprise.monitoring.svc.cluster.local:8000
+      - hostname: longhorn.daviddelporte.com
+        service: http://longhorn-frontend.longhorn-system.svc.cluster.local:80
+      # Jellyfin: NOT through Cloudflare (ToS — video streaming not allowed on free tier)
+      # Access jellyfin.daviddelporte.com via Tailscale only
+      - service: http_status:404
