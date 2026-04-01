@@ -67,6 +67,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: app-config-logs
+              mountPath: /app/config/logs
           resources:
             requests:
               memory: 128Mi
@@ -78,6 +80,8 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: shelf-data
+        - name: app-config-logs
+          emptyDir: {}
 
 ---
 apiVersion: v1
