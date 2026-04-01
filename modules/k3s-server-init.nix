@@ -70,8 +70,7 @@
     2380   # etcd peer
   ];
 
-  # K3s writes kubeconfig here — make it readable for ops user
-  # TODO: replace "david" with your actual ops username
+  # K3s writes kubeconfig to /etc/rancher/k3s — ensure directory exists
   systemd.tmpfiles.rules = [
     "d /etc/rancher/k3s 0755 root root -"
   ];

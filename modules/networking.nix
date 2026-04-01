@@ -1,15 +1,15 @@
 { config, lib, ... }:
 
 # ---------------------------------------------------------------------------
-# Shared networking module — systemd-networkd met MAC-based NIC matching
+# Shared networking module — systemd-networkd with MAC-based NIC matching
 #
-# Voordelen vs networking.interfaces:
-#   - Werkt ongeacht de interface naam (eno1, enp3s0, eth0, ...)
-#   - NixOS Wiki 2025 aanbevolen aanpak
-#   - Interface naam hoeft NIET bekend te zijn voor deploy
+# Advantages over networking.interfaces:
+#   - Works regardless of interface name (eno1, enp3s0, eth0, ...)
+#   - NixOS Wiki 2025 recommended approach
+#   - Interface name does NOT need to be known before deploy
 #
-# Gebruik in hosts/<node>/default.nix:
-#   homelab.node.mac = "aa:bb:cc:dd:ee:ff";  # na hardware discovery
+# Usage in hosts/<node>/default.nix:
+#   homelab.node.mac = "aa:bb:cc:dd:ee:ff";  # after hardware discovery
 #   homelab.node.ip  = "10.0.20.11/24";
 # ---------------------------------------------------------------------------
 
@@ -19,17 +19,17 @@
       type        = lib.types.str;
       default     = "TODO_REPLACE_WITH_MAC";
       description = ''
-        MAC adres van de primaire NIC.
-        Invullen na hardware discovery:
+        MAC address of the primary NIC.
+        Fill in after hardware discovery:
           ip link show | grep -A1 "state UP" | grep "link/ether" | awk "{print \$2}"
-        Of via collect-hardware-info.sh of smart-deploy.sh.
+        Or via collect-hardware-info.sh or smart-deploy.sh.
       '';
       example = "aa:bb:cc:dd:ee:ff";
     };
 
     ip = lib.mkOption {
       type        = lib.types.str;
-      description = "Statisch IP adres met prefix lengte (CIDR notatie).";
+      description = "Static IP address with prefix length (CIDR notation).";
       example     = "10.0.20.11/24";
     };
 
@@ -37,24 +37,24 @@
       type        = lib.types.str;
       default     = "TODO_REPLACE_WITH_DISK";
       description = ''
-        Primaire disk device path.
+        Primary disk device path.
         HP EliteDesk 800 G4 NVMe  → /dev/nvme0n1
         HP EliteDesk 800 G4 SATA  → /dev/sda
-        Invullen na hardware discovery:
+        Fill in after hardware discovery:
           lsblk -dpno NAME,SIZE | grep -v 'loop\|sr' | sort -k2 -hr | head -1
-        Of via smart-deploy.sh (automatisch).
+        Or via smart-deploy.sh (automatic).
       '';
       example = "/dev/nvme0n1";
     };
   };
 
   config = {
-    # systemd-networkd vervangt scripted networking
+    # systemd-networkd replaces scripted networking
     networking.useNetworkd = true;
     networking.useDHCP     = false;
     systemd.network.enable = true;
 
-    # Match primaire NIC op MAC adres — werkt op elke hardware
+    # Match primary NIC by MAC address — works on any hardware
     systemd.network.networks."10-lan" = {
       matchConfig = {
         MACAddress = config.homelab.node.mac;
@@ -68,7 +68,7 @@
         };
       }];
       networkConfig = {
-        DNS          = [ "1.1.1.1" "8.8.8.8" ];
+        DNS          = [ "10.0.20.1" "1.1.1.1" ];
         IPv6AcceptRA = false;
         LinkLocalAddressing = "no";
       };

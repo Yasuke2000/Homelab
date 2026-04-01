@@ -172,15 +172,15 @@ if [[ "$DRY_RUN" != "--dry-run" ]] && [[ -f "$KEY_DIR/ssh_host_ed25519_key" ]]; 
   chmod 600 "$EXTRA_FILES_DIR/etc/ssh/ssh_host_ed25519_key"
 fi
 
-DEPLOY_CMD="nixos-anywhere --flake \"$REPO_ROOT#$NODE_NAME\" root@$TEMP_IP"
+DEPLOY_ARGS=("--flake" "$REPO_ROOT#$NODE_NAME" "root@$TEMP_IP")
 if [[ -d "$EXTRA_FILES_DIR/etc" ]]; then
-  DEPLOY_CMD="$DEPLOY_CMD --extra-files $EXTRA_FILES_DIR"
+  DEPLOY_ARGS+=("--extra-files" "$EXTRA_FILES_DIR")
 fi
 
 if [[ "$DRY_RUN" == "--dry-run" ]]; then
-  info "[dry-run] Would run: $DEPLOY_CMD"
+  info "[dry-run] Would run: nixos-anywhere ${DEPLOY_ARGS[*]}"
 else
-  eval "$DEPLOY_CMD"
+  nixos-anywhere "${DEPLOY_ARGS[@]}"
   info "nixos-anywhere deploy complete"
 fi
 

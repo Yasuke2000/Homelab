@@ -25,7 +25,10 @@ if [ ! -f "$SECRETS_FILE" ]; then
 fi
 
 echo "Decrypting secrets/secrets.yaml with sops..."
-SECRETS=$(sops --decrypt "$SECRETS_FILE")
+SECRETS=$(sops --decrypt "$SECRETS_FILE") || {
+  echo "ERROR: Failed to decrypt $SECRETS_FILE — check your age key"
+  exit 1
+}
 
 # Helper to extract a value from the decrypted YAML
 get() {
