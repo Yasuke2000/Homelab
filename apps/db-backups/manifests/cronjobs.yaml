@@ -1,0 +1,160 @@
+---
+# ---------------------------------------------------------------------------
+# Database backup CronJobs
+#
+# Runs nightly at 02:00 UTC for each database.
+# Dumps are stored on Synology NAS: /volume1/backups/db/<app>/<date>.sql.gz
+# Retains 7 days of backups (old files deleted by the job itself).
+#
+# NFS mount: 10.0.20.14:/volume1/backups → /backup in each pod
+# ---------------------------------------------------------------------------
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: db-backups
+
+---
+# ── RomM MariaDB ────────────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: romm-db-backup
+  namespace: db-backups
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: mariadb:11.4
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  DATE=$(date +%Y-%m-%d)
+                  DIR=/backup/romm
+                  mkdir -p $DIR
+                  mariadb-dump -h romm-mariadb.romm.svc.cluster.local \
+                    -u romm -p"$DB_PASSWORD" romm \
+                    | gzip > $DIR/${DATE}.sql.gz
+                  # Keep only last 7 days
+                  find $DIR -name "*.sql.gz" -mtime +7 -delete
+                  echo "Backup done: $DIR/${DATE}.sql.gz"
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: romm-backup-secret
+                      key: dbPassword
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              nfs:
+                server: 10.0.20.14
+                path: /volume1/backups
+
+---
+# ── Ghost MySQL ─────────────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ghost-db-backup
+  namespace: db-backups
+spec:
+  schedule: "15 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: mariadb:11.4
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  DATE=$(date +%Y-%m-%d)
+                  DIR=/backup/ghost
+                  mkdir -p $DIR
+                  mariadb-dump -h ghost-mysql.ghost.svc.cluster.local \
+                    -u ghost -p"$DB_PASSWORD" ghost \
+                    | gzip > $DIR/${DATE}.sql.gz
+                  find $DIR -name "*.sql.gz" -mtime +7 -delete
+                  echo "Backup done: $DIR/${DATE}.sql.gz"
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ghost-backup-secret
+                      key: dbPassword
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              nfs:
+                server: 10.0.20.14
+                path: /volume1/backups
+
+---
+# ── Pelican MySQL ────────────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pelican-db-backup
+  namespace: db-backups
+spec:
+  schedule: "30 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: mariadb:11.4
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  DATE=$(date +%Y-%m-%d)
+                  DIR=/backup/pelican
+                  mkdir -p $DIR
+                  mariadb-dump -h pelican-mysql.pelican.svc.cluster.local \
+                    -u pelican -p"$DB_PASSWORD" panel \
+                    | gzip > $DIR/${DATE}.sql.gz
+                  find $DIR -name "*.sql.gz" -mtime +7 -delete
+                  echo "Backup done: $DIR/${DATE}.sql.gz"
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: pelican-backup-secret
+                      key: dbPassword
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              nfs:
+                server: 10.0.20.14
+                path: /volume1/backups

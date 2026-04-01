@@ -1,0 +1,37 @@
+---
+# ---------------------------------------------------------------------------
+# db-backups — nightly database backup CronJobs
+#
+# Secrets (romm-backup-secret, ghost-backup-secret, pelican-backup-secret)
+# are deployed manually — ArgoCD only manages the CronJobs.
+#
+# Manual secret deploy:
+#   sops --decrypt apps/db-backups/manifests/secrets.yaml | kubectl apply -f -
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: db-backups
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Yasuke2000/Homelab.git
+    targetRevision: master
+    path: apps/db-backups/manifests
+    directory:
+      include: "cronjobs.yaml"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: db-backups
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
