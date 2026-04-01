@@ -21,6 +21,11 @@ for p in snes gba n64 psx nes gb gbc nds segaMD segaMS segaGG sega32x segaCD pce
   mkdir -p "$LIBRARY/roms/$p"
 done
 
+# Platforms NOT playable in browser (native emulator only)
+for p in saturn 3ds; do
+  mkdir -p "$LIBRARY/roms/$p"
+done
+
 # BIOS directories (only platforms that need them)
 for p in psx segaCD segaSaturn pce 3do lynx; do
   mkdir -p "$LIBRARY/bios/$p"
