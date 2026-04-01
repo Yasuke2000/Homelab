@@ -1,0 +1,35 @@
+---
+# ---------------------------------------------------------------------------
+# monitoring-dashboards — extra Grafana dashboards as ConfigMaps
+#
+# kube-prometheus-stack ships 28 dashboards (K8s, etcd, Prometheus, etc.)
+# This application adds additional dashboards:
+#   - Longhorn storage dashboard (grafana.com/dashboards/13032)
+#
+# Grafana sidecar auto-loads any ConfigMap with label grafana_dashboard="1"
+# ---------------------------------------------------------------------------
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-dashboards
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Yasuke2000/Homelab.git
+    targetRevision: master
+    path: apps/monitoring/dashboards
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
