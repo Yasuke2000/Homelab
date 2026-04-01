@@ -49,6 +49,9 @@
 
       # Use systemd cgroup driver (required for NixOS)
       "--kubelet-arg=cgroup-driver=systemd"
+
+      # Encrypt Kubernetes secrets at rest
+      "--secrets-encryption"
     ];
   };
 
