@@ -64,6 +64,11 @@ spec:
                 secretKeyRef:
                   name: shelf-secrets
                   key: sessionSecret
+            - name: INVITE_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: shelf-secrets
+                  key: inviteTokenSecret
           volumeMounts:
             - name: data
               mountPath: /data
