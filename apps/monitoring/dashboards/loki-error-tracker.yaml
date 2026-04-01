@@ -1,0 +1,323 @@
+---
+# ---------------------------------------------------------------------------
+# Loki: Error & Warning Tracker
+# Focused view on errors, warnings, crashes and restarts — for troubleshooting
+# ---------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-loki-error-tracker
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  loki-error-tracker.json: |
+    {
+      "id": null,
+      "uid": "homelab-loki-errors",
+      "title": "Loki: Error & Warning Tracker",
+      "description": "All errors, warnings, crashes and panics — namespace-selectable",
+      "tags": ["loki", "logs", "homelab", "troubleshoot", "errors"],
+      "timezone": "browser",
+      "refresh": "30s",
+      "schemaVersion": 39,
+      "time": { "from": "now-3h", "to": "now" },
+      "templating": {
+        "list": [
+          {
+            "name": "namespace",
+            "label": "Namespace",
+            "type": "query",
+            "datasource": { "type": "loki", "uid": "loki" },
+            "query": { "label": "namespace", "stream": "", "type": 1 },
+            "refresh": 2,
+            "sort": 1,
+            "multi": true,
+            "includeAll": true,
+            "allValue": ".+"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Total Errors",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "reduceOptions": { "calcs": ["sum"] },
+            "colorMode": "background",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 10 },
+                  { "color": "red", "value": 50 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(count_over_time({namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal|panic)\" [$__range]))",
+              "legendFormat": "errors",
+              "refId": "A",
+              "queryType": "instant",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Total Warnings",
+          "type": "stat",
+          "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "reduceOptions": { "calcs": ["sum"] },
+            "colorMode": "background",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 20 },
+                  { "color": "orange", "value": 100 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(count_over_time({namespace=~\"$namespace\"} |~ \"(?i)(^warn|\\bwarning\\b)\" [$__range]))",
+              "legendFormat": "warnings",
+              "refId": "A",
+              "queryType": "instant",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Panics / Fatals",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "reduceOptions": { "calcs": ["sum"] },
+            "colorMode": "background",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(count_over_time({namespace=~\"$namespace\"} |~ \"(?i)(fatal|panic|segfault|killed|oom)\" [$__range]))",
+              "legendFormat": "fatals",
+              "refId": "A",
+              "queryType": "instant",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "CrashLoopBackOff Events",
+          "type": "stat",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "reduceOptions": { "calcs": ["sum"] },
+            "colorMode": "background",
+            "graphMode": "none"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "red", "value": 1 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(count_over_time({namespace=~\"$namespace\"} |~ \"CrashLoopBackOff\" [$__range]))",
+              "legendFormat": "crashloop events",
+              "refId": "A",
+              "queryType": "instant",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Error Rate by Namespace (over time)",
+          "type": "timeseries",
+          "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "tooltip": { "mode": "multi", "sort": "desc" },
+            "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max", "sum"] }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "lineWidth": 2, "fillOpacity": 10 }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum by(namespace) (rate({namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal|panic)\" [$__interval]))",
+              "legendFormat": "{{namespace}}",
+              "refId": "A",
+              "queryType": "range",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Errors per Namespace",
+          "type": "bargauge",
+          "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["sum"] },
+            "displayMode": "gradient"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 5 },
+                  { "color": "red", "value": 25 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum by(namespace) (count_over_time({namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal|panic)\" [$__range]))",
+              "legendFormat": "{{namespace}}",
+              "refId": "A",
+              "queryType": "instant",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "Errors per Pod (top 15)",
+          "type": "bargauge",
+          "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "orientation": "horizontal",
+            "reduceOptions": { "calcs": ["sum"] },
+            "displayMode": "gradient"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 5 },
+                  { "color": "red", "value": 25 }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "topk(15, sum by(pod, namespace) (count_over_time({namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal|panic)\" [$__range])))",
+              "legendFormat": "{{namespace}}/{{pod}}",
+              "refId": "A",
+              "queryType": "instant",
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "All Errors & Warnings",
+          "type": "logs",
+          "gridPos": { "x": 0, "y": 20, "w": 24, "h": 14 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "showTime": true,
+            "showLabels": true,
+            "showCommonLabels": false,
+            "wrapLogMessage": true,
+            "prettifyLogMessage": false,
+            "enableLogDetails": true,
+            "sortOrder": "Descending",
+            "dedupStrategy": "none"
+          },
+          "targets": [
+            {
+              "expr": "{namespace=~\"$namespace\"} |~ \"(?i)(error|exception|fatal|panic|crit|warn)\"",
+              "legendFormat": "",
+              "refId": "A",
+              "maxLines": 500,
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "OOMKilled / Eviction Events",
+          "type": "logs",
+          "gridPos": { "x": 0, "y": 34, "w": 24, "h": 8 },
+          "datasource": { "type": "loki", "uid": "loki" },
+          "options": {
+            "showTime": true,
+            "showLabels": true,
+            "showCommonLabels": false,
+            "wrapLogMessage": true,
+            "prettifyLogMessage": false,
+            "enableLogDetails": true,
+            "sortOrder": "Descending",
+            "dedupStrategy": "none"
+          },
+          "targets": [
+            {
+              "expr": "{namespace=~\"$namespace\"} |~ \"(?i)(oomkill|out of memory|evict|evicted|killed|memory limit)\"",
+              "legendFormat": "",
+              "refId": "A",
+              "maxLines": 100,
+              "datasource": { "type": "loki", "uid": "loki" }
+            }
+          ]
+        }
+      ]
+    }
