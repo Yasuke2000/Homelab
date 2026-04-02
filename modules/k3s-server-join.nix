@@ -21,6 +21,9 @@
     # CRITICAL: token from sops, never inline
     tokenFile = config.sops.secrets."k3s/token".path;
 
+    # GOMEMLIMIT + any future K3s env vars (defined in common/default.nix)
+    environmentFile = "/etc/k3s.env";
+
     extraFlags = toString [
       # Mirror the same disabled built-ins as the init node
       "--disable=traefik"

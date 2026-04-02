@@ -67,17 +67,30 @@ spec:
             summary: "Node {{ $labels.instance }} /var disk < 15% free (Longhorn data)"
             description: "Available: {{ $value | humanizePercentage }}"
 
-        - alert: NodeMemoryPressure
+        - alert: NodeMemoryWarning
           expr: |
             (
               node_memory_MemAvailable_bytes
               / node_memory_MemTotal_bytes
-            ) < 0.10
+            ) < 0.15
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Node {{ $labels.instance }} memory < 10% free"
+            summary: "Node {{ $labels.instance }} memory < 15% free"
+            description: "Available: {{ $value | humanizePercentage }}"
+
+        - alert: NodeMemoryCritical
+          expr: |
+            (
+              node_memory_MemAvailable_bytes
+              / node_memory_MemTotal_bytes
+            ) < 0.07
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} memory < 7% free — OOM risk"
             description: "Available: {{ $value | humanizePercentage }}"
 
         - alert: NodeHighCPU

@@ -1,15 +1,15 @@
 ---
 # ---------------------------------------------------------------------------
-# Longhorn v1.11 — distributed block storage
+# Longhorn v1.11.1 — distributed block storage
 #
 # CRITICAL: Requires Kyverno PATH fix for NixOS.
 # infrastructure/kyverno-longhorn-fix.yaml MUST be applied first.
 # sync-wave "-1" ensures Kyverno policy exists before Longhorn pods start.
 #
-# NFS backup target: TrueNAS SCALE at 10.0.20.14 / datapool/longhorn-backup
-# TODO: create the NFS share on TrueNAS before enabling backup
+# NFS backup target: Synology DS918+ at 10.0.20.14 / volume1/longhorn-backup
 #
-# TODO: verify chart version — https://artifacthub.io/packages/helm/longhorn/longhorn
+# v1.11.0 → v1.11.1: fixes critical memory leak in instance-manager
+# (proxy connection leak, GitHub #12643/#12668, 5+ GiB per instance-manager)
 # ---------------------------------------------------------------------------
 
 apiVersion: argoproj.io/v1alpha1
@@ -25,15 +25,16 @@ spec:
   source:
     repoURL: https://charts.longhorn.io
     chart: longhorn
-    targetRevision: "1.11.0"
+    targetRevision: "1.11.1"
     helm:
       valuesObject:
         preUpgradeChecker:
           jobEnabled: false  # Disabled: pre-upgrade job fails on fresh install via ArgoCD (namespace env var bug)
 
         defaultSettings:
-          # Replicas across 3 nodes
-          defaultReplicaCount: 3
+          # 2 replicas: survives single node failure, saves ~33% memory/storage
+          # 3-node cluster with 2 replicas = 1 node can fail without data loss
+          defaultReplicaCount: 2
 
           # NFS backup target on Synology DS918+
           backupTarget: "nfs://10.0.20.14:/volume1/longhorn-backup"
@@ -47,6 +48,18 @@ spec:
 
           # Auto-balance replicas when a new node is added
           replicaAutoBalance: best-effort
+
+          # CPU reservation for instance-managers (lower = more headroom)
+          guaranteedInstanceManagerCPU: 6
+
+          # Limit concurrent rebuilds to reduce peak memory
+          concurrentReplicaRebuildPerNodeLimit: 1
+
+          # Auto-clean system snapshots to reduce read index memory
+          autoCleanupSystemGeneratedSnapshot: true
+
+        persistence:
+          defaultClassReplicaCount: 2
 
         longhornUI:
           ingress:

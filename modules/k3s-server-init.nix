@@ -24,6 +24,9 @@
     # See: gotchas.md #2
     tokenFile = config.sops.secrets."k3s/token".path;
 
+    # GOMEMLIMIT + any future K3s env vars (defined in common/default.nix)
+    environmentFile = "/etc/k3s.env";
+
     extraFlags = toString [
       # Disable built-ins — we deploy our own
       "--disable=traefik"          # our Traefik v3 via ArgoCD
@@ -46,6 +49,10 @@
 
       # etcd metrics for Prometheus
       "--etcd-expose-metrics=true"
+
+      # etcd memory optimization: compact every hour, reduce snapshot count
+      "--etcd-arg=auto-compaction-retention=1h"
+      "--etcd-arg=snapshot-count=5000"
 
       # Use systemd cgroup driver (required for NixOS)
       "--kubelet-arg=cgroup-driver=systemd"
