@@ -50,10 +50,6 @@
       # etcd metrics for Prometheus
       "--etcd-expose-metrics=true"
 
-      # etcd memory optimization: compact every hour, reduce snapshot count
-      "--etcd-arg=auto-compaction-retention=1h"
-      "--etcd-arg=snapshot-count=5000"
-
       # Use systemd cgroup driver (required for NixOS)
       "--kubelet-arg=cgroup-driver=systemd"
     ];
