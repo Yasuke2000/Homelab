@@ -1,0 +1,61 @@
+---
+# Longhorn ServiceMonitor — scrape longhorn-backend:9500/metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: longhorn
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - longhorn-system
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: longhorn
+  endpoints:
+    - port: manager
+      path: /metrics
+      interval: 30s
+
+---
+# Traefik metrics Service — expose port 9100 for Prometheus scraping
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-metrics
+  namespace: traefik
+  labels:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik-traefik
+spec:
+  selector:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik-traefik
+  ports:
+    - name: metrics
+      port: 9100
+      targetPort: metrics
+  clusterIP: None
+
+---
+# Traefik ServiceMonitor — scrape traefik-metrics:9100/metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: traefik
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - traefik
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
