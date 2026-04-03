@@ -84,17 +84,21 @@ spec:
             limits:
               memory: 512Mi
               cpu: 500m
+          startupProbe:
+            httpGet:
+              path: /_up
+              port: 5984
+            failureThreshold: 30
+            periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /_up
               port: 5984
-            initialDelaySeconds: 15
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /_up
               port: 5984
-            initialDelaySeconds: 5
             periodSeconds: 10
       volumes:
         - name: data
