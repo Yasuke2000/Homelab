@@ -5,6 +5,18 @@ metadata:
   name: cloudflared
 
 ---
+# Credentials file derived from TUNNEL_TOKEN — allows local config instead of remote
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflared-credentials
+  namespace: cloudflared
+type: Opaque
+stringData:
+  credentials.json: |
+    {"AccountTag":"69a326678697157f0302a71c722360ee","TunnelSecret":"YjZiN2NhOWEtY2U3ZC00ZjY4LWIwNGUtNDg4MDIxNmYwZTE0","TunnelID":"7211e835-36d7-48a0-bdfc-57334f8ff0e6"}
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,15 +43,14 @@ spec:
             - --config
             - /etc/cloudflared/config.yml
             - run
-          env:
-            - name: TUNNEL_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: cloudflared-token
-                  key: token
           volumeMounts:
             - name: config
-              mountPath: /etc/cloudflared
+              mountPath: /etc/cloudflared/config.yml
+              subPath: config.yml
+              readOnly: true
+            - name: credentials
+              mountPath: /etc/cloudflared/credentials.json
+              subPath: credentials.json
               readOnly: true
           resources:
             requests:
@@ -52,3 +63,6 @@ spec:
         - name: config
           configMap:
             name: cloudflared-config
+        - name: credentials
+          secret:
+            secretName: cloudflared-credentials

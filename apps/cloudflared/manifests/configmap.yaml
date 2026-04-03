@@ -6,7 +6,7 @@ metadata:
 data:
   config.yml: |
     tunnel: 7211e835-36d7-48a0-bdfc-57334f8ff0e6
-    credentials-file: /dev/null
+    credentials-file: /etc/cloudflared/credentials.json
     ingress:
       - hostname: romm.daviddelporte.com
         service: http://romm.romm.svc.cluster.local:8080
