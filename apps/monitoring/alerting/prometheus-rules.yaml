@@ -294,11 +294,12 @@ spec:
     # -----------------------------------------------------------------------
     - name: notifications
       rules:
-        - alert: AppriseDown
-          expr: up{job="apprise"} == 0 or absent(up{job="apprise"})
+        - alert: ApprisePodNotReady
+          expr: |
+            kube_deployment_status_available_replicas{namespace="monitoring",deployment="apprise"} == 0
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Apprise notification service is down"
+            summary: "Apprise notification service has 0 ready pods"
             description: "Discord alerts will not be delivered."

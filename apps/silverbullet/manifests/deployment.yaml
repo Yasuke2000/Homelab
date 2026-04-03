@@ -45,17 +45,24 @@ spec:
               mountPath: /space
           resources:
             requests:
-              memory: 128Mi
-              cpu: 50m
+              memory: 256Mi
+              cpu: 100m
             limits:
-              memory: 512Mi
+              memory: 1Gi
               cpu: 500m
+          startupProbe:
+            httpGet:
+              path: /
+              port: 3000
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
               port: 3000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 30
             periodSeconds: 30
+            failureThreshold: 5
       volumes:
         - name: space
           persistentVolumeClaim:

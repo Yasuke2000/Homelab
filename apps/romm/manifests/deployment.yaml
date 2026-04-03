@@ -59,13 +59,31 @@ spec:
                 secretKeyRef:
                   name: romm-secrets
                   key: igdbClientSecret
+            # Metadata enrichment APIs
+            - name: HASHEOUS_API_ENABLED
+              value: "true"
+            - name: PLAYMATCH_API_ENABLED
+              value: "true"
+            - name: HLTB_API_ENABLED
+              value: "true"
+            # Scan settings
+            - name: SCAN_TIMEOUT
+              value: "14400"
+            - name: ENABLE_RESCAN_ON_FILESYSTEM_CHANGE
+              value: "true"
+            - name: RESCAN_ON_FILESYSTEM_CHANGE_DELAY
+              value: "5"
           volumeMounts:
             - name: roms
               mountPath: /romm/library
+            - name: resources
+              mountPath: /romm/resources
             - name: assets
               mountPath: /romm/assets
             - name: config
               mountPath: /romm/config
+            - name: redis-data
+              mountPath: /redis-data
           resources:
             requests:
               memory: 256Mi
@@ -78,12 +96,18 @@ spec:
           nfs:
             server: 10.0.20.14
             path: /volume1/roms
+        - name: resources
+          persistentVolumeClaim:
+            claimName: romm-resources
         - name: assets
           persistentVolumeClaim:
             claimName: romm-assets
         - name: config
           persistentVolumeClaim:
             claimName: romm-config
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: romm-redis-data
 
 ---
 # MariaDB for RomM
@@ -154,6 +178,36 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: romm-config
+  namespace: romm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# Cover art, screenshots, metadata images — THE critical PVC most K8s deploys miss
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: romm-resources
+  namespace: romm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Valkey/Redis task queue cache
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: romm-redis-data
   namespace: romm
 spec:
   accessModes:
