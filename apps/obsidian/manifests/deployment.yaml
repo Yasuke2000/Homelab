@@ -85,19 +85,16 @@ spec:
               memory: 512Mi
               cpu: 500m
           startupProbe:
-            httpGet:
-              path: /_up
+            tcpSocket:
               port: 5984
             failureThreshold: 30
             periodSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /_up
+            tcpSocket:
               port: 5984
             periodSeconds: 30
           readinessProbe:
-            httpGet:
-              path: /_up
+            tcpSocket:
               port: 5984
             periodSeconds: 10
       volumes:
