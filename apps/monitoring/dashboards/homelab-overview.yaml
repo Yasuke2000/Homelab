@@ -333,9 +333,9 @@ data:
           "title": "Longhorn Volumes",
           "type": "stat",
           "targets": [
-            { "expr": "count(longhorn_volume_robustness == 0) or vector(0)", "legendFormat": "Healthy" },
-            { "expr": "count(longhorn_volume_robustness == 1) or vector(0)", "legendFormat": "Degraded" },
-            { "expr": "count(longhorn_volume_robustness == 2) or vector(0)", "legendFormat": "Faulted" }
+            { "expr": "count(longhorn_volume_robustness{state=\"healthy\"} == 1) or vector(0)", "legendFormat": "Healthy" },
+            { "expr": "count(longhorn_volume_robustness{state=\"degraded\"} == 1) or vector(0)", "legendFormat": "Degraded" },
+            { "expr": "count(longhorn_volume_robustness{state=\"faulted\"} == 1) or vector(0)", "legendFormat": "Faulted" }
           ]
         },
 

@@ -199,16 +199,16 @@ spec:
     - name: longhorn.health
       rules:
         - alert: LonghornVolumeUnhealthy
-          expr: longhorn_volume_robustness == 2  # 2 = Faulted
+          expr: longhorn_volume_robustness{state="faulted"} == 1
           for: 2m
           labels:
             severity: critical
           annotations:
             summary: "Longhorn volume {{ $labels.volume }} is faulted"
-            description: "Check Longhorn UI at longhorn.daviddelporte.com"  # TODO: update domain
+            description: "Check Longhorn UI at longhorn.daviddelporte.com"
 
         - alert: LonghornVolumeAtRisk
-          expr: longhorn_volume_robustness == 1  # 1 = Degraded
+          expr: longhorn_volume_robustness{state="degraded"} == 1
           for: 5m
           labels:
             severity: warning
