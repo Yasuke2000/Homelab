@@ -90,7 +90,7 @@ data:
         - RomM:
             icon: mdi-controller-classic
             href: https://romm.daviddelporte.com
-            description: ROM manager (693 ROMs, 25 platforms)
+            description: ROM manager (652 ROMs, 20 platforms)
             namespace: romm
             app: romm
             widget:
