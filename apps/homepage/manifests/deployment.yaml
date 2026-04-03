@@ -31,7 +31,7 @@ spec:
           volumeMounts:
             - name: config-source
               mountPath: /config-source
-            - name: config
+            - name: config-writable
               mountPath: /app/config
       containers:
         - name: homepage
@@ -43,7 +43,7 @@ spec:
             - containerPort: 3000
               name: http
           volumeMounts:
-            - name: config
+            - name: config-writable
               mountPath: /app/config
           resources:
             requests:
@@ -56,7 +56,7 @@ spec:
         - name: config-source
           configMap:
             name: homepage-config
-        - name: config
+        - name: config-writable
           emptyDir: {}
 
 ---
