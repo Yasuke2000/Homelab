@@ -48,12 +48,6 @@ data:
           cpu: true
           memory: true
           showLabel: true
-    - longhorn:
-        expanded: true
-        total: true
-        labels: true
-        nodes: true
-        url: http://longhorn-frontend.longhorn-system.svc.cluster.local:80
     - search:
         provider: duckduckgo
         target: _blank
@@ -81,14 +75,14 @@ data:
             app: jellyfin
 
         - Seerr:
-            icon: jellyseerr.png
+            icon: overseerr.png
             href: https://requests.daviddelporte.com
             description: Media requests
             namespace: media
             app: seerr
 
         - RomM:
-            icon: mdi-controller-classic
+            icon: https://raw.githubusercontent.com/rommapp/romm/release/frontend/assets/default/favicon.ico
             href: https://romm.daviddelporte.com
             description: ROM manager (652 ROMs, 20 platforms)
             namespace: romm
@@ -120,14 +114,14 @@ data:
             app: vaultwarden
 
         - Jelu:
-            icon: mdi-bookshelf
+            icon: https://raw.githubusercontent.com/bayang/jelu/main/src/jelu-ui/public/logo.svg
             href: https://jelu.daviddelporte.com
             description: Book library (ISBN scanner)
             namespace: jelu
             app: jelu
 
         - Actual Budget:
-            icon: actual.png
+            icon: actual-budget.png
             href: https://budget.daviddelporte.com
             description: Personal finance
             namespace: actual-budget
@@ -140,26 +134,29 @@ data:
             description: GitOps (30 apps)
             namespace: argocd
             app: argocd-server
+            podSelector: "app.kubernetes.io/name=argocd-server"
 
         - Traefik:
             icon: traefik.png
             href: https://traefik.daviddelporte.com
             description: Ingress controller
-            widget:
-              type: traefik
-              url: http://traefik.traefik.svc.cluster.local:9000
+            namespace: traefik
+            app: traefik
+            podSelector: "app.kubernetes.io/name=traefik"
 
         - Longhorn:
             icon: longhorn.png
             href: https://longhorn.daviddelporte.com
             description: Distributed storage (698 GiB)
             namespace: longhorn-system
-            app: longhorn-frontend
+            app: longhorn-ui
 
         - Cloudflare Tunnel:
             icon: cloudflare.png
             href: https://one.dash.cloudflare.com
             description: External access
+            namespace: cloudflared
+            app: cloudflared
 
     - Monitoring & Ops:
         - Grafana:
@@ -167,12 +164,13 @@ data:
             href: https://grafana.daviddelporte.com
             description: Metrics & dashboards
             namespace: monitoring
-            app: kube-prometheus-stack-grafana
+            app: grafana
+            podSelector: "app.kubernetes.io/name=grafana"
 
         - Uptime Kuma:
             icon: uptime-kuma.png
             href: https://status.daviddelporte.com
-            description: Service uptime
+            description: Service uptime (15 monitors)
             namespace: uptime-kuma
             app: uptime-kuma
             widget:
@@ -187,10 +185,13 @@ data:
             namespace: obsidian
             app: couchdb
 
-        - NAS:
-            icon: synology.png
-            href: http://10.0.20.14:5000
-            description: Synology DS918+
+        - Apprise:
+            icon: mdi-bell-ring
+            href: https://apprise.daviddelporte.com
+            description: Discord notifications
+            namespace: monitoring
+            app: apprise
+            podSelector: "app.kubernetes.io/name=apprise"
 
   bookmarks.yaml: |
     - Quick Links:
@@ -203,9 +204,31 @@ data:
         - Tailscale:
             - icon: tailscale.png
               href: https://login.tailscale.com/admin/machines
+
+    - Management:
         - Synology NAS:
             - icon: synology.png
               href: http://10.0.20.14:5000
+        - Ghost Admin:
+            - icon: ghost.png
+              href: https://daviddelporte.com/ghost
+        - Brevo (Email):
+            - icon: mdi-email-fast
+              href: https://app.brevo.com
+        - Twitch Dev (IGDB):
+            - icon: twitch.png
+              href: https://dev.twitch.tv/console
+
+    - Tools:
+        - Grafana Homelab Dashboard:
+            - icon: grafana.png
+              href: https://grafana.daviddelporte.com/d/homelab-overview
+        - Longhorn Volumes:
+            - icon: longhorn.png
+              href: https://longhorn.daviddelporte.com/#/volume
+        - ArgoCD Apps:
+            - icon: argocd.png
+              href: https://argocd.daviddelporte.com/applications
 
   kubernetes.yaml: |
     mode: cluster
