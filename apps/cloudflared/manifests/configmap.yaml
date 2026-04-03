@@ -23,15 +23,17 @@ data:
       - hostname: budget.daviddelporte.com
         service: http://actual-budget.actual-budget.svc.cluster.local:5006
       - hostname: notes.daviddelporte.com
-        service: http://silverbullet.silverbullet.svc.cluster.local:3000
+        service: http://couchdb.obsidian.svc.cluster.local:5984
+      - hostname: couchdb.daviddelporte.com
+        service: http://couchdb.obsidian.svc.cluster.local:5984
+      - hostname: jelu.daviddelporte.com
+        service: http://jelu.jelu.svc.cluster.local:11111
       - hostname: status.daviddelporte.com
         service: http://uptime-kuma.uptime-kuma.svc.cluster.local:3001
       - hostname: requests.daviddelporte.com
-        service: http://jellyseerr.media.svc.cluster.local:5055
+        service: http://seerr.media.svc.cluster.local:5055
       - hostname: games.daviddelporte.com
         service: http://pelican-panel.pelican.svc.cluster.local:80
-      - hostname: shelf.daviddelporte.com
-        service: http://shelf.shelf.svc.cluster.local:8080
       - hostname: daviddelporte.com
         service: http://ghost.ghost.svc.cluster.local:2368
       - hostname: apprise.daviddelporte.com

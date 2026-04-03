@@ -1,6 +1,6 @@
 ---
 # ---------------------------------------------------------------------------
-# Homepage config via ConfigMap — volledig GitOps-beheerd
+# Homepage config — central command post for the homelab
 # Docs: https://gethomepage.dev/configs/
 # ---------------------------------------------------------------------------
 
@@ -18,26 +18,22 @@ data:
     target: _blank
     useEqualHeights: true
     layout:
-      GitOps & Networking:
-        tab: Infrastructure
-        style: row
-        columns: 4
-      Storage:
-        tab: Infrastructure
-        style: row
-        columns: 3
-      Monitoring:
-        tab: Infrastructure
-        style: row
-        columns: 3
-      Media & Entertainment:
+      Media & Gaming:
         tab: Apps
         style: row
-        columns: 3
+        columns: 4
       Productivity:
         tab: Apps
         style: row
-        columns: 3
+        columns: 4
+      Infrastructure:
+        tab: Systems
+        style: row
+        columns: 4
+      Monitoring & Ops:
+        tab: Systems
+        style: row
+        columns: 4
 
   widgets.yaml: |
     - kubernetes:
@@ -58,6 +54,9 @@ data:
         labels: true
         nodes: true
         url: http://longhorn-frontend.longhorn-system.svc.cluster.local:80
+    - search:
+        provider: duckduckgo
+        target: _blank
     - openmeteo:
         label: Brugge
         latitude: 51.2093
@@ -65,9 +64,6 @@ data:
         timezone: Europe/Brussels
         units: metric
         cache: 5
-    - search:
-        provider: duckduckgo
-        target: _blank
     - datetime:
         text_size: xl
         format:
@@ -76,103 +72,37 @@ data:
           hourCycle: h23
 
   services.yaml: |
-    - GitOps & Networking:
-        - ArgoCD:
-            icon: argocd.png
-            href: https://argocd.daviddelporte.com
-            description: GitOps deployments
-            namespace: argocd
-            app: argocd-server
-
-        - Traefik:
-            icon: traefik.png
-            href: https://traefik.daviddelporte.com
-            description: Ingress controller
-            widget:
-              type: traefik
-              url: http://traefik.traefik.svc.cluster.local:9000
-
-        - Cloudflare Tunnel:
-            icon: cloudflare.png
-            href: https://one.dash.cloudflare.com
-            description: External access (no port forwarding)
-
-        - Pelican:
-            icon: https://raw.githubusercontent.com/pelican-dev/panel/main/public/pelican.svg
-            href: https://games.daviddelporte.com
-            description: Game servers
-            namespace: pelican
-            app: pelican-panel
-
-    - Storage:
-        - Longhorn:
-            icon: longhorn.png
-            href: https://longhorn.daviddelporte.com
-            description: Distributed block storage
-            namespace: longhorn-system
-            app: longhorn-frontend
-
-        - NAS:
-            icon: synology.png
-            href: http://10.0.20.14
-            description: Synology DS918+ (NFS)
-
-        - DB Backups:
-            icon: mdi-database-clock
-            href: https://argocd.daviddelporte.com/applications/argocd/db-backups
-            description: Nightly MySQL backups
-            namespace: db-backups
-
-    - Monitoring:
-        - Grafana:
-            icon: grafana.png
-            href: https://grafana.daviddelporte.com
-            description: Metrics & dashboards
-            namespace: monitoring
-            app: kube-prometheus-stack-grafana
-
-        - Uptime Kuma:
-            icon: uptime-kuma.png
-            href: https://status.daviddelporte.com
-            description: Service uptime
-            namespace: uptime-kuma
-            app: uptime-kuma
-            widget:
-              type: uptimekuma
-              url: http://uptime-kuma.uptime-kuma.svc.cluster.local:3001
-              slug: homelab   # create status page "homelab" in Uptime Kuma UI first
-
-        - Apprise:
-            icon: mdi-bell-ring
-            href: https://apprise.daviddelporte.com
-            description: Notification gateway
-            namespace: monitoring
-            app: apprise
-
-    - Media & Entertainment:
+    - Media & Gaming:
         - Jellyfin:
             icon: jellyfin.png
             href: https://jellyfin.daviddelporte.com
-            description: Media server
+            description: Media server (movies, TV, music)
             namespace: media
             app: jellyfin
 
-        - Jellyseerr:
+        - Seerr:
             icon: jellyseerr.png
             href: https://requests.daviddelporte.com
             description: Media requests
             namespace: media
-            app: jellyseerr
+            app: seerr
 
         - RomM:
             icon: mdi-controller-classic
             href: https://romm.daviddelporte.com
-            description: ROM manager (~900 ROMs)
+            description: ROM manager (693 ROMs, 25 platforms)
             namespace: romm
             app: romm
             widget:
               type: romm
               url: http://romm.romm.svc.cluster.local:8080
+
+        - Pelican:
+            icon: https://raw.githubusercontent.com/pelican-dev/panel/main/public/pelican.svg
+            href: https://games.daviddelporte.com
+            description: Game server panel
+            namespace: pelican
+            app: pelican-panel
 
     - Productivity:
         - Ghost:
@@ -189,12 +119,12 @@ data:
             namespace: vaultwarden
             app: vaultwarden
 
-        - SilverBullet:
-            icon: mdi-notebook-edit
-            href: https://notes.daviddelporte.com
-            description: Notes & wiki
-            namespace: silverbullet
-            app: silverbullet
+        - Jelu:
+            icon: mdi-bookshelf
+            href: https://jelu.daviddelporte.com
+            description: Book library (ISBN scanner)
+            namespace: jelu
+            app: jelu
 
         - Actual Budget:
             icon: actual.png
@@ -203,27 +133,83 @@ data:
             namespace: actual-budget
             app: actual-budget
 
-        - Shelf:
-            icon: mdi-bookshelf
-            href: https://shelf.daviddelporte.com
-            description: Asset management
-            namespace: shelf
-            app: shelf
+    - Infrastructure:
+        - ArgoCD:
+            icon: argocd.png
+            href: https://argocd.daviddelporte.com
+            description: GitOps (30 apps)
+            namespace: argocd
+            app: argocd-server
+
+        - Traefik:
+            icon: traefik.png
+            href: https://traefik.daviddelporte.com
+            description: Ingress controller
+            widget:
+              type: traefik
+              url: http://traefik.traefik.svc.cluster.local:9000
+
+        - Longhorn:
+            icon: longhorn.png
+            href: https://longhorn.daviddelporte.com
+            description: Distributed storage (698 GiB)
+            namespace: longhorn-system
+            app: longhorn-frontend
+
+        - Cloudflare Tunnel:
+            icon: cloudflare.png
+            href: https://one.dash.cloudflare.com
+            description: External access
+
+    - Monitoring & Ops:
+        - Grafana:
+            icon: grafana.png
+            href: https://grafana.daviddelporte.com
+            description: Metrics & dashboards
+            namespace: monitoring
+            app: kube-prometheus-stack-grafana
+
+        - Uptime Kuma:
+            icon: uptime-kuma.png
+            href: https://status.daviddelporte.com
+            description: Service uptime
+            namespace: uptime-kuma
+            app: uptime-kuma
+            widget:
+              type: uptimekuma
+              url: http://uptime-kuma.uptime-kuma.svc.cluster.local:3001
+              slug: homelab
+
+        - CouchDB:
+            icon: couchdb.png
+            href: https://couchdb.daviddelporte.com/_utils
+            description: Obsidian notes sync
+            namespace: obsidian
+            app: couchdb
+
+        - NAS:
+            icon: synology.png
+            href: http://10.0.20.14:5000
+            description: Synology DS918+
 
   bookmarks.yaml: |
-    - External:
+    - Quick Links:
         - GitHub Repo:
             - icon: github.png
               href: https://github.com/Yasuke2000/Homelab
-        - Cloudflare Dashboard:
+        - Cloudflare:
             - icon: cloudflare.png
               href: https://dash.cloudflare.com
-        - Tailscale Admin:
+        - Tailscale:
             - icon: tailscale.png
               href: https://login.tailscale.com/admin/machines
-        - Homelab Docs:
-            - icon: mkdocs.png
-              href: https://homelab.daviddelporte.com
+        - Synology NAS:
+            - icon: synology.png
+              href: http://10.0.20.14:5000
 
   kubernetes.yaml: |
     mode: cluster
+
+  docker.yaml: ""
+  custom.css: ""
+  custom.js: ""

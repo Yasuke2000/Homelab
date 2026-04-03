@@ -1,0 +1,159 @@
+---
+# ---------------------------------------------------------------------------
+# CouchDB 3.5.1 — Obsidian LiveSync backend
+# Local-first: notes work offline, CouchDB syncs when connected.
+# CORS handled in local.ini — do NOT add Traefik CORS middleware.
+# ---------------------------------------------------------------------------
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: couchdb-config
+  namespace: obsidian
+data:
+  local.ini: |
+    [couchdb]
+    single_node = true
+    max_document_size = 50000000
+
+    [chttpd]
+    require_valid_user = true
+    enable_cors = true
+    bind_address = 0.0.0.0
+
+    [httpd]
+    enable_cors = true
+
+    [cors]
+    origins = app://obsidian.md,capacitor://localhost,http://localhost
+    credentials = true
+    headers = accept, authorization, content-type, origin, referer
+    methods = GET, PUT, POST, HEAD, DELETE
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couchdb
+  namespace: obsidian
+  labels:
+    app: couchdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couchdb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: couchdb
+    spec:
+      securityContext:
+        runAsUser: 5984
+        runAsGroup: 5984
+        fsGroup: 5984
+      containers:
+        - name: couchdb
+          image: couchdb:3.5.1
+          ports:
+            - containerPort: 5984
+              name: http
+          env:
+            - name: COUCHDB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: couchdb-secrets
+                  key: username
+            - name: COUCHDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: couchdb-secrets
+                  key: password
+          volumeMounts:
+            - name: data
+              mountPath: /opt/couchdb/data
+            - name: config
+              mountPath: /opt/couchdb/etc/local.ini
+              subPath: local.ini
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+          livenessProbe:
+            httpGet:
+              path: /_up
+              port: 5984
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /_up
+              port: 5984
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: couchdb-data
+        - name: config
+          configMap:
+            name: couchdb-config
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: couchdb-data
+  namespace: obsidian
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: couchdb
+  namespace: obsidian
+spec:
+  selector:
+    app: couchdb
+  ports:
+    - port: 5984
+      targetPort: 5984
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: couchdb
+  namespace: obsidian
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: couchdb-tls
+      hosts:
+        - couchdb.daviddelporte.com
+  rules:
+    - host: couchdb.daviddelporte.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: couchdb
+                port:
+                  number: 5984

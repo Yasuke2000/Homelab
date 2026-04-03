@@ -1,0 +1,25 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jelu
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Yasuke2000/Homelab.git
+    targetRevision: master
+    path: apps/jelu/manifests
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jelu
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true

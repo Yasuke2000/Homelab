@@ -1,0 +1,133 @@
+---
+# ---------------------------------------------------------------------------
+# Jelu 0.80.0 — book library with ISBN barcode scanner
+# Built-in SQLite, no external DB. HTTPS required for camera/barcode.
+# First visit creates admin account.
+# ---------------------------------------------------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jelu
+  namespace: jelu
+  labels:
+    app: jelu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jelu
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jelu
+    spec:
+      containers:
+        - name: jelu
+          image: wabayang/jelu:0.80.0
+          ports:
+            - containerPort: 11111
+              name: http
+          env:
+            - name: JELU_DATABASE_PATH
+              value: /database/
+            - name: JELU_FILES_IMAGES
+              value: /files/images/
+            - name: JELU_FILES_IMPORTS
+              value: /files/imports/
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx256m"
+            - name: TZ
+              value: Europe/Brussels
+          volumeMounts:
+            - name: data
+              mountPath: /database
+              subPath: database
+            - name: data
+              mountPath: /files/images
+              subPath: images
+            - name: data
+              mountPath: /files/imports
+              subPath: imports
+            - name: data
+              mountPath: /config
+              subPath: config
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 100m
+            limits:
+              memory: 1Gi
+              cpu: 500m
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 11111
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 11111
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: jelu-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jelu-data
+  namespace: jelu
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jelu
+  namespace: jelu
+spec:
+  selector:
+    app: jelu
+  ports:
+    - port: 11111
+      targetPort: 11111
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jelu
+  namespace: jelu
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: jelu-tls
+      hosts:
+        - jelu.daviddelporte.com
+  rules:
+    - host: jelu.daviddelporte.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jelu
+                port:
+                  number: 11111
