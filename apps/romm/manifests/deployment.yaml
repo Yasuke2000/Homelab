@@ -59,6 +59,23 @@ spec:
                 secretKeyRef:
                   name: romm-secrets
                   key: igdbClientSecret
+            # ScreenScraper — excellent retro artwork (3D boxes, manuals, cartridge art)
+            - name: SCREENSCRAPER_USER
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: screenschraperUser
+            - name: SCREENSCRAPER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: screenschraperPassword
+            # RetroAchievements — achievement tracking integration
+            - name: RETROACHIEVEMENTS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: romm-secrets
+                  key: retroachievementsApiKey
             # Metadata enrichment APIs
             - name: HASHEOUS_API_ENABLED
               value: "true"
