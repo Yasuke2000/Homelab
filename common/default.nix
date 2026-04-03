@@ -20,12 +20,13 @@
     firewall = {
       enable = true;
 
-      # K3s control-plane API
+      # K3s control-plane + monitoring
       allowedTCPPorts = [
         6443   # Kubernetes API server
         2379   # etcd client
         2380   # etcd peer
         10250  # kubelet API (metrics-server, kubectl logs/exec)
+        9100   # node-exporter (Prometheus scraping across nodes)
       ];
 
       # Flannel VXLAN – CRITICAL: without UDP 8472 pod DNS is broken

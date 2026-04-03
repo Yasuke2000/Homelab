@@ -114,6 +114,16 @@ spec:
                     requests:
                       storage: 2Gi
 
+        # K3s bundles kube-proxy, scheduler, controller-manager inside the k3s binary.
+        # They don't expose separate metrics endpoints → disable their ServiceMonitors
+        # to avoid false-positive Down alerts.
+        kubeProxy:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+
         # node-exporter on all nodes (including control-plane)
         prometheus-node-exporter:
           tolerations:

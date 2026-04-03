@@ -26,200 +26,97 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "red", "value": null },
-                  { "color": "green", "value": 1 }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
             }
           },
           "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
           "id": 1,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Nodes Ready",
           "type": "stat",
-          "targets": [{
-            "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
-            "legendFormat": "Ready Nodes"
-          }]
+          "targets": [{ "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "red", "value": 1 }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
             }
           },
           "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
           "id": 2,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Pods Not Running",
           "type": "stat",
-          "targets": [{
-            "expr": "count(kube_pod_status_phase{phase!~\"Running|Succeeded\"} == 1) or vector(0)",
-            "legendFormat": "Unhealthy"
-          }]
+          "targets": [{ "expr": "count(kube_pod_status_phase{phase!~\"Running|Succeeded\"} == 1) or vector(0)" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "orange", "value": 1 },
-                  { "color": "red", "value": 5 }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }, { "color": "red", "value": 5 }] }
             }
           },
           "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
           "id": 3,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Pod Restarts (1h)",
           "type": "stat",
-          "targets": [{
-            "expr": "sum(increase(kube_pod_container_status_restarts_total[1h])) or vector(0)",
-            "legendFormat": "Restarts"
-          }]
+          "targets": [{ "expr": "sum(increase(kube_pod_container_status_restarts_total[1h])) or vector(0)" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "green", "value": null }] }
             }
           },
           "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
           "id": 4,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Running Pods",
           "type": "stat",
-          "targets": [{
-            "expr": "count(kube_pod_status_phase{phase=\"Running\"} == 1)",
-            "legendFormat": "Running"
-          }]
+          "targets": [{ "expr": "count(kube_pod_status_phase{phase=\"Running\"} == 1)" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [],
               "unit": "dtdurations",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "red", "value": null },
-                  { "color": "orange", "value": 86400 },
-                  { "color": "green", "value": 604800 }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 86400 }, { "color": "green", "value": 604800 }] }
             }
           },
           "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
           "id": 5,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Cluster Uptime",
           "type": "stat",
-          "targets": [{
-            "expr": "min(time() - kube_node_created)",
-            "legendFormat": "Uptime"
-          }]
+          "targets": [{ "expr": "min(time() - kube_node_created)" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "red", "value": 1 }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
             }
           },
           "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
           "id": 6,
-          "options": {
-            "colorMode": "background",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Firing Alerts",
           "type": "stat",
-          "targets": [{
-            "expr": "count(ALERTS{alertstate=\"firing\",severity=~\"critical|warning\"}) or vector(0)",
-            "legendFormat": "Alerts"
-          }]
+          "targets": [{ "expr": "count(ALERTS{alertstate=\"firing\",alertname!=\"Watchdog\"}) or vector(0)" }]
         },
         {
           "collapsed": false,
           "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
           "id": 101,
-          "title": "Node Resources",
+          "title": "Node Resources — Per Node",
           "type": "row"
         },
         {
@@ -227,32 +124,18 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "continuous-GrYlRd" },
-              "max": 100,
-              "min": 0,
-              "unit": "percent",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 70 },
-                  { "color": "red", "value": 90 }
-                ]
-              }
+              "max": 100, "min": 0, "unit": "percent",
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] }
             }
           },
-          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 6 },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
           "id": 10,
-          "options": {
-            "orientation": "horizontal",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true
-          },
+          "options": { "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true, "minVizHeight": 75 },
           "title": "CPU Usage per Node",
           "type": "gauge",
           "targets": [{
-            "expr": "(1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) by (instance)) * 100",
-            "legendFormat": "{{ instance }}"
+            "expr": "label_replace((1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) by (instance)) * 100, \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+            "legendFormat": "{{ node }}"
           }]
         },
         {
@@ -260,32 +143,18 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "continuous-GrYlRd" },
-              "max": 100,
-              "min": 0,
-              "unit": "percent",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 70 },
-                  { "color": "red", "value": 90 }
-                ]
-              }
+              "max": 100, "min": 0, "unit": "percent",
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] }
             }
           },
-          "gridPos": { "h": 6, "w": 8, "x": 8, "y": 6 },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 6 },
           "id": 11,
-          "options": {
-            "orientation": "horizontal",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true
-          },
+          "options": { "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true, "minVizHeight": 75 },
           "title": "Memory Usage per Node",
           "type": "gauge",
           "targets": [{
-            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
-            "legendFormat": "{{ instance }}"
+            "expr": "label_replace((1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100, \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+            "legendFormat": "{{ node }}"
           }]
         },
         {
@@ -293,39 +162,25 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "continuous-GrYlRd" },
-              "max": 100,
-              "min": 0,
-              "unit": "percent",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 70 },
-                  { "color": "red", "value": 90 }
-                ]
-              }
+              "max": 100, "min": 0, "unit": "percent",
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] }
             }
           },
-          "gridPos": { "h": 6, "w": 8, "x": 16, "y": 6 },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
           "id": 12,
-          "options": {
-            "orientation": "horizontal",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true
-          },
+          "options": { "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true, "minVizHeight": 75 },
           "title": "Disk Usage per Node",
           "type": "gauge",
           "targets": [{
-            "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"})) * 100",
-            "legendFormat": "{{ instance }}"
+            "expr": "label_replace((1 - (node_filesystem_avail_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"} / node_filesystem_size_bytes{mountpoint=\"/\",fstype!=\"tmpfs\"})) * 100, \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+            "legendFormat": "{{ node }}"
           }]
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 12 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
           "id": 102,
-          "title": "Resource Trends",
+          "title": "Resource Trends (all nodes)",
           "type": "row"
         },
         {
@@ -333,28 +188,18 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisLabel": "",
-                "fillOpacity": 20,
-                "lineWidth": 2,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never"
-              },
-              "unit": "percent",
-              "max": 100,
-              "min": 0
+              "custom": { "fillOpacity": 20, "lineWidth": 2, "showPoints": "never" },
+              "unit": "percent", "max": 100, "min": 0
             }
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 13 },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
           "id": 20,
-          "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "lastNotNull"] }, "tooltip": { "mode": "multi" } },
           "title": "CPU Usage Over Time",
           "type": "timeseries",
           "targets": [{
-            "expr": "(1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) by (instance)) * 100",
-            "legendFormat": "{{ instance }}"
+            "expr": "label_replace((1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) by (instance)) * 100, \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+            "legendFormat": "{{ node }}"
           }]
         },
         {
@@ -362,33 +207,23 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisLabel": "",
-                "fillOpacity": 20,
-                "lineWidth": 2,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never"
-              },
-              "unit": "percent",
-              "max": 100,
-              "min": 0
+              "custom": { "fillOpacity": 20, "lineWidth": 2, "showPoints": "never" },
+              "unit": "percent", "max": 100, "min": 0
             }
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 13 },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
           "id": 21,
-          "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "lastNotNull"] }, "tooltip": { "mode": "multi" } },
           "title": "Memory Usage Over Time",
           "type": "timeseries",
           "targets": [{
-            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
-            "legendFormat": "{{ instance }}"
+            "expr": "label_replace((1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100, \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+            "legendFormat": "{{ node }}"
           }]
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
           "id": 103,
           "title": "Network & Storage",
           "type": "row"
@@ -398,26 +233,18 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisLabel": "",
-                "fillOpacity": 20,
-                "lineWidth": 2,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never"
-              },
+              "custom": { "fillOpacity": 20, "lineWidth": 2, "showPoints": "never" },
               "unit": "Bps"
             }
           },
-          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
           "id": 30,
-          "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi" } },
           "title": "Network Traffic (Receive)",
           "type": "timeseries",
           "targets": [{
-            "expr": "sum(rate(node_network_receive_bytes_total{device!~\"lo|veth.*|cali.*|flannel.*|cni.*\"}[5m])) by (instance)",
-            "legendFormat": "{{ instance }}"
+            "expr": "label_replace(sum(rate(node_network_receive_bytes_total{device!~\"lo|veth.*|cali.*|flannel.*|cni.*\"}[5m])) by (instance), \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+            "legendFormat": "{{ node }}"
           }]
         },
         {
@@ -425,37 +252,29 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisLabel": "",
-                "fillOpacity": 20,
-                "lineWidth": 2,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never"
-              },
+              "custom": { "fillOpacity": 20, "lineWidth": 2, "showPoints": "never" },
               "unit": "Bps"
             }
           },
-          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 22 },
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
           "id": 31,
-          "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
-          "title": "Disk I/O (Read + Write)",
+          "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi" } },
+          "title": "Disk I/O",
           "type": "timeseries",
           "targets": [
             {
-              "expr": "sum(rate(node_disk_read_bytes_total[5m])) by (instance)",
-              "legendFormat": "{{ instance }} read"
+              "expr": "label_replace(sum(rate(node_disk_read_bytes_total[5m])) by (instance), \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+              "legendFormat": "{{ node }} read"
             },
             {
-              "expr": "sum(rate(node_disk_written_bytes_total[5m])) by (instance)",
-              "legendFormat": "{{ instance }} write"
+              "expr": "label_replace(sum(rate(node_disk_written_bytes_total[5m])) by (instance), \"node\", \"$1\", \"instance\", \"(.*):.*\")",
+              "legendFormat": "{{ node }} write"
             }
           ]
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 30 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
           "id": 104,
           "title": "Longhorn Storage",
           "type": "row"
@@ -465,33 +284,16 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "continuous-GrYlRd" },
-              "max": 100,
-              "min": 0,
-              "unit": "percent",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "yellow", "value": 70 },
-                  { "color": "red", "value": 85 }
-                ]
-              }
+              "max": 100, "min": 0, "unit": "percent",
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 85 }] }
             }
           },
-          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 31 },
+          "gridPos": { "h": 6, "w": 8, "x": 0, "y": 33 },
           "id": 40,
-          "options": {
-            "orientation": "horizontal",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true
-          },
+          "options": { "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true },
           "title": "Longhorn Node Disk Usage",
           "type": "gauge",
-          "targets": [{
-            "expr": "(longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100",
-            "legendFormat": "{{ node }}"
-          }]
+          "targets": [{ "expr": "(longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) * 100", "legendFormat": "{{ node }}" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -499,35 +301,18 @@ data:
             "defaults": {
               "color": { "mode": "thresholds" },
               "unit": "bytes",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null }
-                ]
-              }
+              "thresholds": { "steps": [{ "color": "green", "value": null }] }
             }
           },
-          "gridPos": { "h": 6, "w": 8, "x": 8, "y": 31 },
+          "gridPos": { "h": 6, "w": 8, "x": 8, "y": 33 },
           "id": 41,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
-          "title": "Longhorn Total Capacity",
+          "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
+          "title": "Longhorn Capacity",
           "type": "stat",
           "targets": [
-            {
-              "expr": "sum(longhorn_node_storage_capacity_bytes)",
-              "legendFormat": "Total"
-            },
-            {
-              "expr": "sum(longhorn_node_storage_usage_bytes)",
-              "legendFormat": "Used"
-            }
+            { "expr": "sum(longhorn_node_storage_capacity_bytes)", "legendFormat": "Total" },
+            { "expr": "sum(longhorn_node_storage_usage_bytes)", "legendFormat": "Used" },
+            { "expr": "sum(longhorn_node_storage_capacity_bytes) - sum(longhorn_node_storage_usage_bytes)", "legendFormat": "Free" }
           ]
         },
         {
@@ -535,36 +320,29 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null }
-                ]
-              }
-            }
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }] }
+            },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "Degraded" }, "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }] },
+              { "matcher": { "id": "byName", "options": "Faulted" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+            ]
           },
-          "gridPos": { "h": 6, "w": 8, "x": 16, "y": 31 },
+          "gridPos": { "h": 6, "w": 8, "x": 16, "y": 33 },
           "id": 42,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-            "textMode": "auto"
-          },
+          "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] }, "textMode": "auto" },
           "title": "Longhorn Volumes",
           "type": "stat",
-          "targets": [{
-            "expr": "count(longhorn_volume_state == 1)",
-            "legendFormat": "Healthy"
-          }]
+          "targets": [
+            { "expr": "count(longhorn_volume_robustness == 0) or vector(0)", "legendFormat": "Healthy" },
+            { "expr": "count(longhorn_volume_robustness == 1) or vector(0)", "legendFormat": "Degraded" },
+            { "expr": "count(longhorn_volume_robustness == 2) or vector(0)", "legendFormat": "Faulted" }
+          ]
         },
         {
           "collapsed": false,
-          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 37 },
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
           "id": 105,
-          "title": "Application Pods",
+          "title": "Top Resource Consumers",
           "type": "row"
         },
         {
@@ -572,52 +350,49 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "custom": {
-                "align": "auto",
-                "cellOptions": { "type": "auto" },
-                "inspect": false
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  { "color": "green", "value": null },
-                  { "color": "red", "value": 1 }
-                ]
-              }
+              "unit": "bytes",
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 536870912 }, { "color": "red", "value": 1073741824 }] },
+              "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
             },
             "overrides": [
-              {
-                "matcher": { "id": "byName", "options": "Restarts" },
-                "properties": [{
-                  "id": "thresholds",
-                  "value": {
-                    "mode": "absolute",
-                    "steps": [
-                      { "color": "green", "value": null },
-                      { "color": "orange", "value": 3 },
-                      { "color": "red", "value": 10 }
-                    ]
-                  }
-                }, {
-                  "id": "custom.cellOptions",
-                  "value": { "mode": "gradient", "type": "color-background" }
-                }]
-              }
+              { "matcher": { "id": "byName", "options": "Memory" }, "properties": [{ "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }] }
             ]
           },
-          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 38 },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 40 },
           "id": 50,
-          "options": {
-            "showHeader": true,
-            "sortBy": [{ "desc": true, "displayName": "Restarts" }]
+          "options": { "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Memory" }] },
+          "title": "Top 15 Pods by Memory",
+          "type": "table",
+          "targets": [{
+            "expr": "topk(15, sum by (namespace, pod) (container_memory_working_set_bytes{container!=\"\", container!=\"POD\"}))",
+            "format": "table",
+            "instant": true
+          }],
+          "transformations": [
+            { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "namespace": "Namespace", "pod": "Pod", "Value": "Memory" } } }
+          ]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 3 }, { "color": "red", "value": 10 }] },
+              "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }
+            },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "Restarts" }, "properties": [{ "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }] }
+            ]
           },
-          "title": "Pod Restart Tracker (24h)",
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 40 },
+          "id": 51,
+          "options": { "showHeader": true, "sortBy": [{ "desc": true, "displayName": "Restarts" }] },
+          "title": "Pod Restarts (24h)",
           "type": "table",
           "targets": [{
             "expr": "sort_desc(sum by (namespace, pod) (increase(kube_pod_container_status_restarts_total[24h])) > 0)",
             "format": "table",
-            "instant": true,
-            "legendFormat": ""
+            "instant": true
           }],
           "transformations": [
             { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "namespace": "Namespace", "pod": "Pod", "Value": "Restarts" } } }
@@ -635,16 +410,7 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "palette-classic" },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisLabel": "",
-                "fillOpacity": 30,
-                "lineWidth": 2,
-                "scaleDistribution": { "type": "linear" },
-                "showPoints": "never",
-                "stacking": { "mode": "normal" }
-              },
+              "custom": { "fillOpacity": 30, "lineWidth": 2, "showPoints": "never", "stacking": { "mode": "normal" } },
               "unit": "reqps"
             }
           },
@@ -653,10 +419,7 @@ data:
           "options": { "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"] }, "tooltip": { "mode": "multi" } },
           "title": "Traefik Requests per Service",
           "type": "timeseries",
-          "targets": [{
-            "expr": "sum(rate(traefik_service_requests_total[5m])) by (service)",
-            "legendFormat": "{{ service }}"
-          }]
+          "targets": [{ "expr": "sum(rate(traefik_service_requests_total[5m])) by (service)", "legendFormat": "{{ service }}" }]
         }
       ],
       "schemaVersion": 39,
@@ -667,5 +430,5 @@ data:
       "timezone": "Europe/Brussels",
       "title": "Homelab Overview",
       "uid": "homelab-overview",
-      "version": 1
+      "version": 2
     }
