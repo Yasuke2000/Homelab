@@ -69,7 +69,8 @@ spec:
         # Prometheus
         prometheus:
           prometheusSpec:
-            retention: 30d
+            retention: 14d
+            scrapeInterval: 30s
             storageSpec:
               volumeClaimTemplate:
                 spec:
