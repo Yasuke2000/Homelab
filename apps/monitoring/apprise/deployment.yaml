@@ -96,7 +96,7 @@ spec:
               readOnly: true
       containers:
         - name: apprise
-          image: caronc/apprise:v1.9.1
+          image: caronc/apprise:v1.3.3
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
