@@ -138,7 +138,7 @@ data:
 
     - Infrastructure:
         - ArgoCD:
-            icon: argocd.png
+            icon: https://argo-cd.readthedocs.io/en/stable/assets/logo.png
             href: https://argocd.daviddelporte.com
             description: GitOps (30 apps)
             namespace: argocd
