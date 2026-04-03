@@ -1,7 +1,8 @@
 ---
 # ---------------------------------------------------------------------------
-# Homepage config — central command post for the homelab
-# Docs: https://gethomepage.dev/configs/
+# Homepage config — central command post
+# Note: Homepage v1.12+ defaults to app.kubernetes.io/name for pod matching.
+# Use podSelector: "app=X" for pods that use the plain "app" label.
 # ---------------------------------------------------------------------------
 
 apiVersion: v1
@@ -70,9 +71,10 @@ data:
         - Jellyfin:
             icon: jellyfin.png
             href: https://jellyfin.daviddelporte.com
-            description: Media server (movies, TV, music)
+            description: Media server
             namespace: media
             app: jellyfin
+            podSelector: "app=jellyfin"
 
         - Seerr:
             icon: overseerr.png
@@ -80,23 +82,26 @@ data:
             description: Media requests
             namespace: media
             app: seerr
+            podSelector: "app=seerr"
 
         - RomM:
-            icon: https://raw.githubusercontent.com/rommapp/romm/release/frontend/assets/default/favicon.ico
+            icon: romm.png
             href: https://romm.daviddelporte.com
-            description: ROM manager (652 ROMs, 20 platforms)
+            description: ROM manager (652 ROMs)
             namespace: romm
             app: romm
+            podSelector: "app=romm"
             widget:
               type: romm
               url: http://romm.romm.svc.cluster.local:8080
 
         - Pelican:
-            icon: https://raw.githubusercontent.com/pelican-dev/panel/main/public/pelican.svg
+            icon: pterodactyl.png
             href: https://games.daviddelporte.com
             description: Game server panel
             namespace: pelican
             app: pelican-panel
+            podSelector: "app=pelican-panel"
 
     - Productivity:
         - Ghost:
@@ -105,6 +110,7 @@ data:
             description: Website & blog
             namespace: ghost
             app: ghost
+            podSelector: "app=ghost"
 
         - Vaultwarden:
             icon: bitwarden.png
@@ -112,13 +118,15 @@ data:
             description: Password manager
             namespace: vaultwarden
             app: vaultwarden
+            podSelector: "app=vaultwarden"
 
         - Jelu:
-            icon: https://raw.githubusercontent.com/bayang/jelu/main/src/jelu-ui/public/logo.svg
+            icon: mdi-bookshelf
             href: https://jelu.daviddelporte.com
-            description: Book library (ISBN scanner)
+            description: Book library
             namespace: jelu
             app: jelu
+            podSelector: "app=jelu"
 
         - Actual Budget:
             icon: actual-budget.png
@@ -126,6 +134,7 @@ data:
             description: Personal finance
             namespace: actual-budget
             app: actual-budget
+            podSelector: "app=actual-budget"
 
     - Infrastructure:
         - ArgoCD:
@@ -147,9 +156,10 @@ data:
         - Longhorn:
             icon: longhorn.png
             href: https://longhorn.daviddelporte.com
-            description: Distributed storage (698 GiB)
+            description: Storage (698 GiB)
             namespace: longhorn-system
             app: longhorn-ui
+            podSelector: "app=longhorn-ui"
 
         - Cloudflare Tunnel:
             icon: cloudflare.png
@@ -157,6 +167,7 @@ data:
             description: External access
             namespace: cloudflared
             app: cloudflared
+            podSelector: "app=cloudflared"
 
     - Monitoring & Ops:
         - Grafana:
@@ -170,9 +181,10 @@ data:
         - Uptime Kuma:
             icon: uptime-kuma.png
             href: https://status.daviddelporte.com
-            description: Service uptime (15 monitors)
+            description: Service uptime
             namespace: uptime-kuma
             app: uptime-kuma
+            podSelector: "app=uptime-kuma"
             widget:
               type: uptimekuma
               url: http://uptime-kuma.uptime-kuma.svc.cluster.local:3001
@@ -181,14 +193,15 @@ data:
         - CouchDB:
             icon: couchdb.png
             href: https://couchdb.daviddelporte.com/_utils
-            description: Obsidian notes sync
+            description: Obsidian sync
             namespace: obsidian
             app: couchdb
+            podSelector: "app=couchdb"
 
         - Apprise:
             icon: mdi-bell-ring
             href: https://apprise.daviddelporte.com
-            description: Discord notifications
+            description: Discord alerts
             namespace: monitoring
             app: apprise
             podSelector: "app.kubernetes.io/name=apprise"
