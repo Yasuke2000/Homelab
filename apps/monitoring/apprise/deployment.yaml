@@ -85,7 +85,7 @@ spec:
           command:
             - sh
             - -c
-            - 'URL=$(cat /secrets/discord_webhook_url) && sed "s|\${DISCORD_WEBHOOK_URL}|$URL|g" /seed/alerts.yml > /config/alerts.yml && echo "alerts.yml seeded"'
+            - 'URL=$(cat /secrets/discord_webhook_url) && awk -v url="$URL" "{gsub(/\\$\\{DISCORD_WEBHOOK_URL\\}/, url); print}" /seed/alerts.yml > /config/alerts.yml && echo "alerts.yml seeded"'
           volumeMounts:
             - name: config-seed
               mountPath: /seed
@@ -96,7 +96,7 @@ spec:
               readOnly: true
       containers:
         - name: apprise
-          image: caronc/apprise:v1.3.3
+          image: caronc/apprise:v1.9.1
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
