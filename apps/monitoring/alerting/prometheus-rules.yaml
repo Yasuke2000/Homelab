@@ -2,15 +2,10 @@
 # ---------------------------------------------------------------------------
 # PrometheusRule — core cluster alerting rules
 #
-# Deployed alongside kube-prometheus-stack. Covers:
-#   - Node health (disk, memory, CPU)
-#   - K3s / etcd health
-#   - Pod crash loops / OOMKills
-#   - Longhorn volume health
-#   - cert-manager certificate expiry
+# Covers: Node health, K8s workloads, etcd, Longhorn, cert-manager,
+#         CronJob monitoring, Apprise/notification health
 #
-# Alertmanager routes are configured in the kube-prometheus-stack Helm values.
-# Receiver: Discord via Apprise (apprise-webhook bridge → apps/monitoring/apprise/)
+# Receiver: Discord via Apprise → apprise-webhook bridge
 # ---------------------------------------------------------------------------
 
 apiVersion: monitoring.coreos.com/v1
@@ -19,21 +14,53 @@ metadata:
   name: homelab-alerts
   namespace: monitoring
   labels:
-    release: kube-prometheus-stack   # matches ServiceMonitor selector
+    release: kube-prometheus-stack
 spec:
   groups:
 
     # -----------------------------------------------------------------------
-    # Node health
+    # Node health — catch problems BEFORE they cause outages
     # -----------------------------------------------------------------------
     - name: node.health
       rules:
+        - alert: NodeDown
+          expr: up{job="node-exporter"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} is unreachable"
+
+        - alert: NodeMemoryWarning
+          expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.15
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} memory < 15% free"
+            description: "Available: {{ $value | humanizePercentage }}. Investigate top consumers."
+
+        - alert: NodeMemoryCritical
+          expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.07
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.instance }} memory < 7% free — OOM risk"
+            description: "Available: {{ $value | humanizePercentage }}. Pods will be evicted soon."
+
+        - alert: NodeHighCPU
+          expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} CPU > 90% for 15 min"
+
         - alert: NodeDiskSpaceLow
           expr: |
-            (
-              node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
-              / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}
-            ) < 0.15
+            (node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
+            / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) < 0.15
           for: 5m
           labels:
             severity: warning
@@ -43,10 +70,8 @@ spec:
 
         - alert: NodeDiskSpaceCritical
           expr: |
-            (
-              node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
-              / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}
-            ) < 0.05
+            (node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}
+            / node_filesystem_size_bytes{mountpoint="/",fstype!="tmpfs"}) < 0.05
           for: 2m
           labels:
             severity: critical
@@ -54,113 +79,75 @@ spec:
             summary: "Node {{ $labels.instance }} root disk < 5% free"
             description: "Available: {{ $value | humanizePercentage }}"
 
-        - alert: NodeVarDiskSpaceLow
+        # Predict disk full in 24h based on current growth rate
+        - alert: NodeDiskFillingUp
           expr: |
-            (
-              node_filesystem_avail_bytes{mountpoint="/var",fstype!="tmpfs"}
-              / node_filesystem_size_bytes{mountpoint="/var",fstype!="tmpfs"}
-            ) < 0.15
-          for: 5m
+            predict_linear(node_filesystem_avail_bytes{mountpoint="/",fstype!="tmpfs"}[6h], 24*3600) < 0
+          for: 30m
           labels:
             severity: warning
           annotations:
-            summary: "Node {{ $labels.instance }} /var disk < 15% free (Longhorn data)"
-            description: "Available: {{ $value | humanizePercentage }}"
+            summary: "Node {{ $labels.instance }} disk predicted full within 24h"
+            description: "Based on 6h growth trend. Current free: {{ with printf `node_filesystem_avail_bytes{instance=\"%s\",mountpoint=\"/\",fstype!=\"tmpfs\"}` $labels.instance | query }}{{ . | first | value | humanize1024 }}{{ end }}"
 
-        - alert: NodeMemoryWarning
-          expr: |
-            (
-              node_memory_MemAvailable_bytes
-              / node_memory_MemTotal_bytes
-            ) < 0.15
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Node {{ $labels.instance }} memory < 15% free"
-            description: "Available: {{ $value | humanizePercentage }}"
-
-        - alert: NodeMemoryCritical
-          expr: |
-            (
-              node_memory_MemAvailable_bytes
-              / node_memory_MemTotal_bytes
-            ) < 0.07
-          for: 2m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Node {{ $labels.instance }} memory < 7% free — OOM risk"
-            description: "Available: {{ $value | humanizePercentage }}"
-
-        - alert: NodeHighCPU
-          expr: |
-            100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
+        - alert: NodeHighLoadAverage
+          expr: node_load15 / count without(cpu, mode) (node_cpu_seconds_total{mode="idle"}) > 2
           for: 15m
           labels:
             severity: warning
           annotations:
-            summary: "Node {{ $labels.instance }} CPU > 90% for 15 min"
-
-        - alert: NodeDown
-          expr: up{job="node-exporter"} == 0
-          for: 2m
-          labels:
-            severity: critical
-          annotations:
-            summary: "Node exporter unreachable on {{ $labels.instance }}"
+            summary: "Node {{ $labels.instance }} load average > 2x CPU cores for 15 min"
 
     # -----------------------------------------------------------------------
-    # Kubernetes workload health
+    # Kubernetes workloads
     # -----------------------------------------------------------------------
     - name: k8s.workloads
       rules:
         - alert: PodCrashLooping
-          expr: |
-            rate(kube_pod_container_status_restarts_total[15m]) * 60 > 0
+          expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 > 0
           for: 5m
           labels:
             severity: warning
           annotations:
-            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash-looping"
-            description: "Container {{ $labels.container }} restarts: {{ $value | humanize }} per minute"
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} is crash-looping"
+            description: "Container {{ $labels.container }}: {{ $value | humanize }} restarts/min"
 
         - alert: PodNotReady
           expr: |
             kube_pod_status_ready{condition="true"} == 0
-            unless on(pod, namespace)
-              kube_pod_status_phase{phase=~"Succeeded|Failed"} > 0
+            unless on(pod, namespace) kube_pod_status_phase{phase=~"Succeeded|Failed"} > 0
           for: 10m
           labels:
             severity: warning
           annotations:
-            summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} not ready for 10 min"
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} not ready for 10 min"
 
         - alert: OOMKill
-          expr: |
-            kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
+          expr: kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} == 1
           for: 1m
           labels:
             severity: warning
           annotations:
-            summary: "Container {{ $labels.container }} in {{ $labels.namespace }}/{{ $labels.pod }} OOMKilled"
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} OOMKilled"
 
         - alert: DeploymentReplicasMismatch
-          expr: |
-            kube_deployment_spec_replicas != kube_deployment_status_available_replicas
+          expr: kube_deployment_spec_replicas != kube_deployment_status_available_replicas
           for: 10m
           labels:
             severity: warning
           annotations:
-            summary: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} replicas mismatch"
-            description: "Desired: {{ $labels.spec_replicas }}, available: {{ $value }}"
+            summary: "{{ $labels.namespace }}/{{ $labels.deployment }} has unavailable replicas"
+
+        - alert: StatefulSetReplicasMismatch
+          expr: kube_statefulset_status_replicas_ready != kube_statefulset_status_replicas
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.statefulset }} has unavailable replicas"
 
         - alert: PVCAlmostFull
-          expr: |
-            (
-              kubelet_volume_stats_used_bytes
-              / kubelet_volume_stats_capacity_bytes
-            ) > 0.85
+          expr: (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) > 0.85
           for: 5m
           labels:
             severity: warning
@@ -168,8 +155,40 @@ spec:
             summary: "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} > 85% full"
             description: "Used: {{ $value | humanizePercentage }}"
 
+        - alert: PVCCriticallyFull
+          expr: (kubelet_volume_stats_used_bytes / kubelet_volume_stats_capacity_bytes) > 0.95
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} > 95% full"
+
     # -----------------------------------------------------------------------
-    # etcd / K3s cluster health
+    # CronJob monitoring — catch failed backups
+    # -----------------------------------------------------------------------
+    - name: cronjobs
+      rules:
+        - alert: CronJobFailed
+          expr: |
+            kube_job_status_failed{namespace="db-backups"} > 0
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Backup job {{ $labels.namespace }}/{{ $labels.job_name }} failed"
+
+        - alert: CronJobNotRunRecently
+          expr: |
+            time() - kube_cronjob_status_last_successful_time{namespace="db-backups"} > 93600
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} hasn't succeeded in 26h"
+            description: "Last success: {{ $value | humanizeDuration }} ago"
+
+    # -----------------------------------------------------------------------
+    # etcd health
     # -----------------------------------------------------------------------
     - name: etcd.health
       rules:
@@ -179,22 +198,27 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "etcd on {{ $labels.instance }} has no leader — cluster may be down"
+            summary: "etcd on {{ $labels.instance }} has no leader"
 
         - alert: EtcdHighFsyncDuration
-          expr: |
-            histogram_quantile(0.99,
-              rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m])
-            ) > 0.5
+          expr: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m])) > 0.5
           for: 10m
           labels:
             severity: warning
           annotations:
             summary: "etcd WAL fsync P99 > 500ms on {{ $labels.instance }}"
-            description: "Slow disk I/O can cause leader elections"
+
+        - alert: EtcdDatabaseSizeLarge
+          expr: etcd_mvcc_db_total_size_in_bytes > 500 * 1024 * 1024
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "etcd database > 500 MiB on {{ $labels.instance }}"
+            description: "Current: {{ $value | humanize1024 }}. Consider compaction."
 
     # -----------------------------------------------------------------------
-    # Longhorn storage health
+    # Longhorn storage
     # -----------------------------------------------------------------------
     - name: longhorn.health
       rules:
@@ -204,8 +228,8 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "Longhorn volume {{ $labels.volume }} is faulted"
-            description: "Check Longhorn UI at longhorn.daviddelporte.com"
+            summary: "Longhorn volume {{ $labels.pvc }} ({{ $labels.pvc_namespace }}) is FAULTED"
+            description: "Data loss risk. Check longhorn.daviddelporte.com immediately."
 
         - alert: LonghornVolumeAtRisk
           expr: longhorn_volume_robustness{state="degraded"} == 1
@@ -213,44 +237,49 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "Longhorn volume {{ $labels.volume }} is degraded (missing replica)"
+            summary: "Longhorn volume {{ $labels.pvc }} ({{ $labels.pvc_namespace }}) is degraded"
+            description: "Missing replica. One more node failure = data loss."
 
         - alert: LonghornNodeStorageLow
-          expr: |
-            (
-              longhorn_node_storage_usage_bytes
-              / longhorn_node_storage_capacity_bytes
-            ) > 0.80
+          expr: (longhorn_node_storage_usage_bytes / longhorn_node_storage_capacity_bytes) > 0.80
           for: 5m
           labels:
             severity: warning
           annotations:
             summary: "Longhorn storage on {{ $labels.node }} > 80% full"
 
+        - alert: LonghornInstanceManagerHighMemory
+          expr: |
+            sum by (node) (
+              container_memory_working_set_bytes{namespace="longhorn-system",container="longhorn-instance-manager"}
+            ) > 1073741824
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Longhorn instance-manager on {{ $labels.node }} using > 1 GiB memory"
+            description: "May indicate memory leak regression. Normal is <100 MiB."
+
     # -----------------------------------------------------------------------
-    # cert-manager — certificate expiry
+    # cert-manager
     # -----------------------------------------------------------------------
     - name: certmanager.certs
       rules:
         - alert: CertificateExpiringIn14Days
-          expr: |
-            certmanager_certificate_expiration_timestamp_seconds
-            - time() < 14 * 24 * 3600
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 14 * 24 * 3600
           for: 1h
           labels:
             severity: warning
           annotations:
-            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in < 14 days"
+            summary: "Cert {{ $labels.namespace }}/{{ $labels.name }} expires in < 14 days"
 
         - alert: CertificateExpiringIn3Days
-          expr: |
-            certmanager_certificate_expiration_timestamp_seconds
-            - time() < 3 * 24 * 3600
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 3 * 24 * 3600
           for: 5m
           labels:
             severity: critical
           annotations:
-            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in < 3 days"
+            summary: "Cert {{ $labels.namespace }}/{{ $labels.name }} expires in < 3 days"
 
         - alert: CertificateNotReady
           expr: certmanager_certificate_ready_status{condition="True"} == 0
@@ -258,4 +287,18 @@ spec:
           labels:
             severity: warning
           annotations:
-            summary: "Certificate {{ $labels.namespace }}/{{ $labels.name }} is not ready"
+            summary: "Cert {{ $labels.namespace }}/{{ $labels.name }} is not ready"
+
+    # -----------------------------------------------------------------------
+    # Notification health — alert if alerting itself is broken
+    # -----------------------------------------------------------------------
+    - name: notifications
+      rules:
+        - alert: AppriseDown
+          expr: up{job="apprise"} == 0 or absent(up{job="apprise"})
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Apprise notification service is down"
+            description: "Discord alerts will not be delivered."
